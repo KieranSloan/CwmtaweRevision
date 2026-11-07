@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Revision Hub</title>
+<style>
+:root{--bg:#FBF6EA;--card:#fff;--ink:#1d2433;--soft:#5b6475;--blue:#1d4ed8;--blue2:#e0e9ff;--green:#15803d;--green2:#dcfce7;--red:#b91c1c;--red2:#fee2e2;--amber:#fff1c2;--line:#e3dccb}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg)}
+body{color:var(--ink);font-family:Verdana,"Trebuchet MS",Arial,sans-serif;font-size:18px;line-height:1.6;letter-spacing:.01em;-webkit-text-size-adjust:100%;overflow-x:hidden}
+body.big{font-size:21px}
+header{position:sticky;top:0;background:#1e3a8a;color:#fff;padding:10px 16px;display:flex;align-items:center;gap:8px;z-index:5}
+header h1{font-size:1.05rem;margin:0;flex:1;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+header button{background:rgba(255,255,255,.18);color:#fff;border:0;border-radius:10px;padding:6px 10px;font:inherit;font-size:.8rem;cursor:pointer}
+.menu-btn{background:none!important;border:none;color:#fff;font-size:1.5rem!important;padding:0 8px 0 0!important}
+main{max-width:680px;margin:0 auto;padding:16px 16px 60px}
+
+/* Sidebar Styles */
+.sidebar{position:fixed;top:0;left:-270px;width:270px;height:100%;background:#1e3a8a;color:#fff;transition:left 0.28s ease;z-index:10;padding:18px 0;box-shadow:2px 0 12px rgba(0,0,0,0.35);overflow-y:auto}
+.sidebar.open{left:0}
+.sidebar h2{padding:0 20px;margin:0 0 12px;font-size:1.3rem;color:#e0e9ff}
+.sidebar a{display:flex;align-items:center;gap:12px;padding:13px 20px;color:#fff;text-decoration:none;border-bottom:1px solid rgba(255,255,255,0.1);cursor:pointer;font-size:1.02rem}
+.sidebar a:hover,.sidebar a.active{background:rgba(255,255,255,0.2);border-left:4px solid #fff;padding-left:16px}
+.overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9;display:none;opacity:0;transition:opacity 0.25s ease}
+.overlay.open{display:block;opacity:1}
+
+/* App Styles */
+.card{background:var(--card);border:2px solid var(--line);border-radius:16px;padding:16px;margin:0 0 14px}
+h2{font-size:1.3rem;margin:.1em 0 .5em}
+h3{font-size:1.08rem;margin:1em 0 .3em}
+p{margin:.4em 0 .7em}
+.btn{display:block;width:100%;text-align:left;background:var(--card);border:2px solid var(--line);border-radius:14px;padding:13px 16px;margin:0 0 10px;font:inherit;color:inherit;cursor:pointer}
+.btn:active{transform:scale(.99)}
+.btn.primary{background:var(--blue);color:#fff;border-color:var(--blue);text-align:center;font-weight:bold}
+.btn.ghost{text-align:center;background:transparent}
+.btn small{display:block;color:var(--soft);font-size:.82rem;line-height:1.4}
+.menu .btn{display:flex;gap:14px;align-items:center}
+.menu .ico{font-size:1.7rem;width:2.3rem;text-align:center;flex:none}
+.sub-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.sub-grid .btn{margin:0;display:flex;gap:14px;align-items:center}
+.sub-grid .ico{font-size:2rem;width:2.5rem;text-align:center;flex:none}
+.badge{display:inline-block;background:var(--blue2);color:var(--blue);font-weight:bold;border-radius:999px;padding:2px 9px;font-size:.75rem;margin-top:4px}
+.badge.soon{background:#fef3c7;color:#b45309}
+.badge.urgent{background:var(--red2);color:var(--red)}
+.badge.done{background:var(--green2);color:var(--green)}
+.opt.sel{border-color:var(--blue);background:var(--blue2)}
+.opt.right{border-color:var(--green);background:var(--green2)}
+.opt.wrong{border-color:var(--red);background:var(--red2)}
+.fb{border-radius:12px;padding:12px 14px;margin:10px 0}
+.fb.good{background:var(--green2);border:2px solid #86efac}
+.fb.bad{background:var(--red2);border:2px solid #fca5a5}
+.tag{display:inline-block;background:var(--amber);border-radius:999px;padding:2px 10px;font-size:.78rem}
+.row{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.speak{background:var(--blue2);border:0;border-radius:10px;padding:6px 10px;font:inherit;font-size:.8rem;color:var(--blue);cursor:pointer}
+.progress{height:10px;background:var(--line);border-radius:999px;overflow:hidden;margin:6px 0 14px}
+.progress i{display:block;height:100%;background:var(--blue);transition:width .3s}
+.qtext{font-size:1.08em;font-weight:bold;margin:10px 0}
+svg.app{width:96px;height:116px}
+svg.mid{width:150px;height:auto}
+svg.chart{width:100%;height:auto;background:#fff;border-radius:10px;border:1px solid var(--line);touch-action:manipulation}
+.qimg{text-align:center;margin:6px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+.eq{background:#fff;border:2px solid var(--line);border-radius:14px;padding:8px;text-align:center;font-size:.85rem;line-height:1.4}
+.eq b{display:block;font-size:.95rem;margin:2px 0}
+table{border-collapse:collapse;width:100%;font-size:.88rem;margin:6px 0}
+td,th{border:1px solid var(--line);padding:6px;text-align:left;vertical-align:top}
+th{background:var(--blue2)}
+.tip{background:var(--amber);border-radius:12px;padding:10px 14px;margin:10px 0}
+.key{background:var(--blue2);border-radius:12px;padding:10px 14px;margin:10px 0}
+input.num{font:inherit;font-size:1.3rem;padding:10px;border:2px solid var(--line);border-radius:12px;width:8.5rem}
+input.txt{font:inherit;font-size:1.3rem;padding:10px;border:2px solid var(--line);border-radius:12px;width:100%}
+.unit{font-size:1.15rem;margin-left:6px}
+.flash{min-height:330px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;cursor:pointer}
+.flash svg.app{width:150px;height:180px}
+ul{padding-left:1.2em;margin:.3em 0}
+li{margin:.35em 0}
+a{color:var(--blue)}
+.big-score{font-size:2.6rem;font-weight:bold;text-align:center;margin:4px 0}
+.bar{height:14px;background:var(--line);border-radius:999px;overflow:hidden}
+.bar i{display:block;height:100%}
+.small{font-size:.85rem;color:var(--soft)}
+.pill{display:inline-block;border:2px solid var(--line);border-radius:999px;padding:2px 10px;margin:2px;font-size:.85rem;background:#fff;cursor:pointer}
+</style>
+</head>
+<body>
+
+<!-- Slide-out Sidebar -->
+<div class="sidebar" id="sidebar">
+  <h2>📚 Revision Hub</h2>
+  <a onclick="goLanding()" id="nav-home">🏠 All Subjects</a>
+  <a onclick="selectSubject('science')" id="nav-science">🔬 Science</a>
+  <a onclick="selectSubject('welsh')" id="nav-welsh">🏴󠁧󠁢󠁷󠁬󠁳󠁿 Welsh</a>
+  <a onclick="selectSubject('english')" id="nav-english">📖 English</a>
+  <a onclick="selectSubject('maths')" id="nav-maths">📐 Maths</a>
+  <a onclick="selectSubject('french')" id="nav-french">🥐 French</a>
+  <a onclick="selectSubject('dt')" id="nav-dt">🛠️ Design Tech</a>
+  <a onclick="selectSubject('history')" id="nav-history">🏛️ History</a>
+  <a onclick="selectSubject('german')" id="nav-german">🥨 German</a>
+</div>
+<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<header>
+  <button class="menu-btn" onclick="toggleSidebar()" aria-label="Menu">☰</button>
+  <h1 onclick="headerClick()" id="header-title">🎓 Revision Hub</h1>
+  <button onclick="toggleBig()" aria-label="Change text size">A+</button>
+  <button onclick="goLanding()">Subjects</button>
+</header>
+<main id="app"></main>
+
+<script>
+/* ============ HELPERS & STATE ============ */
+const app = document.getElementById('app');
+function show(html){ app.innerHTML = html; window.scrollTo(0,0); }
+function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+function pick(a){ return a[Math.floor(Math.random()*a.length)]; }
+function rnd(a,b){ return a+Math.floor(Math.random()*(b-a+1)); }
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
+function store(k,v){ try{ if(v===undefined) return JSON.parse(localStorage.getItem(k)); localStorage.setItem(k,JSON.stringify(v)); }catch(e){ return null; } }
+function toggleBig(){ document.body.classList.toggle('big'); store('big',document.body.classList.contains('big')); }
+if(store('big')) document.body.classList.add('big');
+
+let currentSubject = null;
+let currentExam = null;
+
+/*
+ * SUBJECTS & EXAMS DIRECTORY
+ * Add new exams to any subject's `exams` array!
+ * Use YYYY-MM-DD for `date` so it sorts automatically with the next exam first.
+ */
+const SUBJECTS = {
+  science: {
+    name: 'Science', ico: '🔬',
+    exams: [
+      { id: 'sci-apparatus', title: 'Apparatus & Graphs Test', date: '2026-11-10', dateText: 'Tuesday 10th November 2026', desc: 'Lab equipment, units, reading scales, bar charts & line graphs' }
+    ]
+  },
+  welsh: {
+    name: 'Welsh', ico: '🏴󠁧󠁢󠁷󠁬󠁳󠁿',
+    exams: [
+      { id: 'welsh-months', title: 'Vocabulary Test: Months of the Year', date: '2026-11-11', dateText: 'Wednesday 11th November 2026', desc: 'Translate English months into Welsh with correct spelling (Miss C Evans)' }
+    ]
+  },
+  english: { name: 'English', ico: '📖', exams: [] },
+  maths:   { name: 'Maths', ico: '📐', exams: [] },
+  french:  { name: 'French', ico: '🥐', exams: [] },
+  dt:      { name: 'Design Tech', ico: '🛠️', exams: [] },
+  history: { name: 'History', ico: '🏛️', exams: [] },
+  german:  { name: 'German', ico: '🥨', exams: [] }
+};
+
+function getSortedExams(subKey) {
+  const list = (SUBJECTS[subKey]?.exams || []).slice();
+  const today = new Date(); today.setHours(0,0,0,0);
+  const upcoming = [], past = [];
+  list.forEach(ex => {
+    const d = new Date(ex.date + 'T00:00:00');
+    const diffDays = Math.round((d - today) / 86400000);
+    const item = { ...ex, diffDays };
+    if (diffDays >= 0) upcoming.push(item);
+    else past.push(item);
+  });
+  upcoming.sort((a,b) => a.diffDays - b.diffDays);
+  past.sort((a,b) => b.diffDays - a.diffDays);
+  return { upcoming, past };
+}
+
+function countdownBadge(diffDays) {
+  if (diffDays === 0) return `<span class="badge urgent">🔥 Exam is TODAY!</span>`;
+  if (diffDays === 1) return `<span class="badge urgent">⏰ Tomorrow!</span>`;
+  if (diffDays > 1 && diffDays <= 7) return `<span class="badge soon">⏳ In ${diffDays} days</span>`;
+  if (diffDays > 7) return `<span class="badge">📅 In ${diffDays} days</span>`;
+  return `<span class="badge" style="background:#eee;color:#555">Past exam (${Math.abs(diffDays)}d ago)</span>`;
+}
+
+/* Sidebar Controls */
+function toggleSidebar() {
+  const sb = document.getElementById('sidebar');
+  const ov = document.getElementById('overlay');
+  if (sb.classList.contains('open')) { closeSidebar(); }
+  else {
+    sb.classList.add('open');
+    ov.style.display = 'block';
+    setTimeout(() => ov.classList.add('open'), 10);
+  }
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  const ov = document.getElementById('overlay');
+  ov.classList.remove('open');
+  setTimeout(() => ov.style.display = 'none', 260);
+}
+function updateNavHighlight() {
+  document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
+  if (!currentSubject) document.getElementById('nav-home')?.classList.add('active');
+  else document.getElementById('nav-' + currentSubject)?.classList.add('active');
+}
+function headerClick() {
+  if (currentExam) examHome();
+  else if (currentSubject) selectSubject(currentSubject);
+  else goLanding();
+}
+
+/* ============ 1. LANDING HOMEPAGE (CHOOSE SUBJECT EVERY TIME) ============ */
+function goLanding() {
+  SPEAK = [];
+  currentSubject = null;
+  currentExam = null;
+  closeSidebar();
+  updateNavHighlight();
+  document.getElementById('header-title').innerHTML = `🎓 Revision Hub`;
+
+  let allUpcoming = [];
+  Object.entries(SUBJECTS).forEach(([k, sub]) => {
+    const { upcoming } = getSortedExams(k);
+    upcoming.forEach(ex => allUpcoming.push({ ...ex, subKey: k, subName: sub.name, subIco: sub.ico }));
+  });
+  allUpcoming.sort((a,b) => a.diffDays - b.diffDays);
+
+  let upHtml = '';
+  if (allUpcoming.length) {
+    upHtml = `<div class="card">
+      <h3 style="margin-top:0">📅 Next Up (Closest Exams First)</h3>
+      <div class="menu">
+        ${allUpcoming.map(ex => `
+          <button class="btn" onclick="openExam('${ex.subKey}','${ex.id}')" style="margin-bottom:8px">
+            <span class="ico">${ex.subIco}</span>
+            <span>
+              <b>${esc(ex.subName)}: ${esc(ex.title)}</b>
+              <small>${esc(ex.dateText)}</small>
+              ${countdownBadge(ex.diffDays)}
+            </span>
+          </button>
+        `).join('')}
+      </div>
+    </div>`;
+  }
+
+  const subCards = Object.entries(SUBJECTS).map(([k, s]) => {
+    const { upcoming, past } = getSortedExams(k);
+    const total = upcoming.length + past.length;
+    let info = `<small>No exams added yet</small>`;
+    if (upcoming.length) {
+      info = `<small>Next: <b>${esc(upcoming[0].title)}</b> (${esc(upcoming[0].dateText)})</small>${countdownBadge(upcoming[0].diffDays)}`;
+    } else if (past.length) {
+      info = `<small>${total} past exam${total>1?'s':''} available to practise</small>`;
+    }
+    return `<button class="btn" onclick="selectSubject('${k}')">
+      <span class="ico">${s.ico}</span>
+      <span><b>${esc(s.name)}</b>${info}</span>
+    </button>`;
+  }).join('');
+
+  show(`
+    <div class="card">
+      <h2>👋 Welcome! Choose a subject to revise</h2>
+      <p class="small">Pick a subject below or jump straight into your next upcoming test.</p>
+    </div>
+    ${upHtml}
+    <h2>📚 Subjects</h2>
+    <div class="sub-grid">${subCards}</div>
+  `);
+}
+
+/* ============ 2. SUBJECT PAGE (LISTS EXAMS ORDERED BY NEXT EXAM FIRST) ============ */
+function selectSubject(subKey) {
+  SPEAK = [];
+  currentSubject = subKey;
+  currentExam = null;
+  closeSidebar();
+  updateNavHighlight();
+  const s = SUBJECTS[subKey];
+  document.getElementById('header-title').innerHTML = `${s.ico} ${s.name}`;
+
+  const { upcoming, past } = getSortedExams(subKey);
+
+  if (!upcoming.length && !past.length) {
+    show(`
+      <div class="card">
+        <h2>${s.ico} ${esc(s.name)} – Exams</h2>
+        <p>No exams or revision topics have been added for <b>${esc(s.name)}</b> yet.</p>
+        <p class="small">Check back soon when new homework or test dates are announced!</p>
+      </div>
+      <button class="btn ghost" onclick="goLanding()">← Back to All Subjects</button>
+    `);
+    return;
+  }
+
+  let html = `<div class="card">
+    <h2>${s.ico} ${esc(s.name)} Exams</h2>
+    <p class="small">Ordered with the next upcoming exam at the top. Tap an exam to start revising.</p>
+  </div>`;
+
+  if (upcoming.length) {
+    html += `<h3>⏳ Upcoming Exams</h3><div class="menu">`;
+    upcoming.forEach(ex => {
+      const best = store('bestTest_' + ex.id);
+      html += `<button class="btn" onclick="openExam('${subKey}','${ex.id}')">
+        <span class="ico">📝</span>
+        <span>
+          <b>${esc(ex.title)}</b>
+          <small>📆 <b>${esc(ex.dateText)}</b> — ${esc(ex.desc)}</small>
+          ${countdownBadge(ex.diffDays)}
+          ${best!=null ? `<span class="badge done">⭐ Best Mock: ${best}%</span>` : ''}
+        </span>
+      </button>`;
+    });
+    html += `</div>`;
+  }
+
+  if (past.length) {
+    html += `<h3>✅ Past Exams (Still open for revision)</h3><div class="menu">`;
+    past.forEach(ex => {
+      const best = store('bestTest_' + ex.id);
+      html += `<button class="btn" onclick="openExam('${subKey}','${ex.id}')">
+        <span class="ico">📂</span>
+        <span>
+          <b>${esc(ex.title)}</b>
+          <small>📆 ${esc(ex.dateText)} — ${esc(ex.desc)}</small>
+          ${countdownBadge(ex.diffDays)}
+          ${best!=null ? `<span class="badge done">⭐ Best Mock: ${best}%</span>` : ''}
+        </span>
+      </button>`;
+    });
+    html += `</div>`;
+  }
+
+  html += `<button class="btn ghost" onclick="goLanding()">← Back to All Subjects</button>`;
+  show(html);
+}
+
+function openExam(subKey, examId) {
+  currentSubject = subKey;
+  currentExam = examId;
+  closeSidebar();
+  updateNavHighlight();
+  examHome();
+}
+
+function home() {
+  if (currentExam) examHome();
+  else if (currentSubject) selectSubject(currentSubject);
+  else goLanding();
+}
+
+/* ============ 3. EXAM DASHBOARD ============ */
+function examHome() {
+  SPEAK = [];
+  if (!currentSubject || !currentExam) { goLanding(); return; }
+  const sub = SUBJECTS[currentSubject];
+  const ex = sub.exams.find(e => e.id === currentExam);
+  document.getElementById('header-title').innerHTML = `${sub.ico} ${ex.title}`;
+  const best = store('bestTest_' + currentExam);
+
+  if (currentExam === 'sci-apparatus') {
+    show(`
+    <div class="card">
+      <h2>🔬 ${esc(ex.title)} 👋</h2>
+      <p>Test date: <b>${esc(ex.dateText)}</b>.</p>
+      <p class="small">Best plan: <b>1.</b> Learn → <b>2.</b> Flashcards → <b>3.</b> Practise → <b>4.</b> Graph Lab → <b>5.</b> Mock test.</p>
+      ${best!=null?`<p class="tip">⭐ Your best mock test score: <b>${best}%</b></p>`:''}
+    </div>
+    <div class="menu">
+      <button class="btn" onclick="learnMenu()"><span class="ico">📖</span><span><b>1. Learn</b><small>Short notes and pictures for each topic</small></span></button>
+      <button class="btn" onclick="flashStart()"><span class="ico">🃏</span><span><b>2. Equipment flashcards</b><small>See the picture. Can you name it? Tap to check.</small></span></button>
+      <button class="btn" onclick="practiceMenu()"><span class="ico">✏️</span><span><b>3. Practise a topic</b><small>Answer questions. Get help straight away.</small></span></button>
+      <button class="btn" onclick="labMenu()"><span class="ico">📈</span><span><b>4. Graph Lab</b><small>Draw real bar charts and line graphs</small></span></button>
+      <button class="btn" onclick="startTest()"><span class="ico">📝</span><span><b>5. Mock test</b><small>25 questions, like the real thing. Marks at the end.</small></span></button>
+      <button class="btn" onclick="tips()"><span class="ico">🏆</span><span><b>Top marks tips</b><small>How to get every mark</small></span></button>
+      <button class="btn" onclick="videos()"><span class="ico">🎬</span><span><b>Videos</b><small>Free video lessons (needs internet)</small></span></button>
+    </div>
+    <button class="btn ghost" onclick="selectSubject('${currentSubject}')">← Back to ${esc(sub.name)} Exams</button>`);
+  } else if (currentExam === 'welsh-months') {
+    show(`
+    <div class="card">
+      <h2>🏴󠁧󠁢󠁷󠁬󠁳󠁿 ${esc(ex.title)} 👋</h2>
+      <p>Test date: <b>${esc(ex.dateText)}</b>.</p>
+      <p class="small">You will be given the months in English in random order and will need to write out the Welsh months. Spelling is important!</p>
+      ${best!=null?`<p class="tip">⭐ Your best mock test score: <b>${best}%</b></p>`:''}
+    </div>
+    <div class="menu">
+      <button class="btn" onclick="learn('months')"><span class="ico">📖</span><span><b>1. Learn the Months</b><small>Full table of English to Welsh months + tips</small></span></button>
+      <button class="btn" onclick="flashStart()"><span class="ico">🃏</span><span><b>2. Flashcards</b><small>See the English month, tap to check the Welsh</small></span></button>
+      <button class="btn" onclick="practise('months-mc')"><span class="ico">🎯</span><span><b>3. Quick Multiple Choice</b><small>Warm up by picking the right Welsh month</small></span></button>
+      <button class="btn" onclick="practise('months')"><span class="ico">✏️</span><span><b>4. Practise Spelling</b><small>Type the Welsh months with instant feedback</small></span></button>
+      <button class="btn" onclick="startTest()"><span class="ico">📝</span><span><b>5. Full Mock Test (All 12 Months)</b><small>Random order spelling test just like class</small></span></button>
+    </div>
+    <button class="btn ghost" onclick="selectSubject('${currentSubject}')">← Back to ${esc(sub.name)} Exams</button>`);
+  }
+}
+
+/* Read aloud */
+function sayText(t, langOverride){
+  if(!('speechSynthesis' in window)){ alert('Read aloud is not available on this phone.'); return; }
+  t = t.replace(/<[^>]+>/g,' ')
+       .replace(/cm³/g,' centimetres cubed').replace(/°C/g,' degrees Celsius')
+       .replace(/\(N\)/g,'(newtons)').replace(/\(g\)/g,'(grams)').replace(/\(s\)/g,'(seconds)')
+       .replace(/\(cm\)/g,'(centimetres)').replace(/\(min\)/g,'(minutes)').replace(/x-axis/g,'x axis').replace(/y-axis/g,'y axis');
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(t);
+  u.lang = langOverride || (currentSubject === 'welsh' ? 'cy-GB' : 'en-GB');
+  u.rate = 0.9;
+  speechSynthesis.speak(u);
+}
+let SPEAK = [];
+function speakBtn(text){ SPEAK.push(text); return `<button class="speak" onclick="sayText(SPEAK[${SPEAK.length-1}])">🔊 Read to me</button>`; }
+
+/* ============ WELSH DATA ============ */
+const WELSH_MONTHS = [
+  {en: 'January', cy: 'Ionawr'},
+  {en: 'February', cy: 'Chwefror'},
+  {en: 'March', cy: 'Mawrth'},
+  {en: 'April', cy: 'Ebrill'},
+  {en: 'May', cy: 'Mai'},
+  {en: 'June', cy: 'Mehefin'},
+  {en: 'July', cy: 'Gorffennaf'},
+  {en: 'August', cy: 'Awst'},
+  {en: 'September', cy: 'Medi'},
+  {en: 'October', cy: 'Hydref'},
+  {en: 'November', cy: 'Tachwedd'},
+  {en: 'December', cy: 'Rhagfyr'}
+];
+
+/* ============ SCIENCE DRAWINGS OF EQUIPMENT ============ */
+const S = 'stroke="#1d3557" stroke-width="2.5" fill="none" stroke-linejoin="round" stroke-linecap="round"';
+const W = 'fill="#a8dadc"';
+function sv(inner,cls='app'){ return `<svg class="${cls}" viewBox="0 0 100 120" aria-hidden="true">${inner}</svg>`; }
+const DRAW = {
+  beaker: ()=>sv(`<rect x="26" y="62" width="48" height="47" ${W}/><path d="M22 16 L27 22 L27 105 Q27 110 32 110 L68 110 Q73 110 73 105 L73 20" ${S}/><path d="M28 45h8M28 62h8M28 79h8M28 96h8" stroke="#1d3557" stroke-width="1.5"/>`),
+  cylinder: ()=>sv(`<rect x="41" y="48" width="18" height="60" ${W}/><path d="M38 8 L41 12 L41 108 L59 108 L59 10" ${S}/><path d="M30 108h40v6H30z" ${S}/><path d="M41 20h7M41 30h5M41 40h7M41 50h5M41 60h7M41 70h5M41 80h7M41 90h5M41 100h7" stroke="#1d3557" stroke-width="1.5"/>`),
+  conical: ()=>sv(`<path d="M33 75 L67 75 L77 105 Q78 109 74 109 L26 109 Q22 109 23 105 Z" ${W}/><path d="M43 12 L43 45 L21 104 Q19 110 26 110 L74 110 Q81 110 79 104 L57 45 L57 12" ${S}/><path d="M40 12h20" ${S}/>`),
+  testtube: ()=>sv(`<path d="M42 70 L58 70 L58 96 A8 8 0 0 1 42 96 Z" ${W}/><path d="M39 10 L42 13 L42 96 A8 8 0 0 0 58 96 L58 13 L61 10" ${S}/>`),
+  boilingtube: ()=>sv(`<path d="M36 68 L64 68 L64 94 A14 14 0 0 1 36 94 Z" ${W}/><path d="M32 8 L36 12 L36 94 A14 14 0 0 0 64 94 L64 12 L68 8" ${S}/>`),
+  thermometer: ()=>sv(`<rect x="47.5" y="48" width="5" height="52" fill="#e63946"/><circle cx="50" cy="104" r="9" fill="#e63946" stroke="#1d3557" stroke-width="2.5"/><rect x="45" y="6" width="10" height="92" rx="5" ${S}/><path d="M55 20h6M55 32h4M55 44h6M55 56h4M55 68h6M55 80h4" stroke="#1d3557" stroke-width="1.5"/>`),
+  bunsen: ()=>sv(`<path d="M50 6 Q64 28 57 46 L43 46 Q36 28 50 6Z" fill="#4cc9f0"/><path d="M50 20 Q56 32 53 46 L47 46 Q44 32 50 20Z" fill="#3a0ca3" opacity=".6"/><rect x="43" y="46" width="14" height="56" ${S}/><rect x="45" y="80" width="10" height="7" fill="#1d3557"/><rect x="24" y="102" width="52" height="10" rx="3" ${S}/><path d="M24 107H8" ${S}/>`),
+  tripod: ()=>sv(`<rect x="14" y="38" width="72" height="6" fill="#ccc" stroke="#1d3557" stroke-width="2"/><path d="M20 41h60M32 38v6M44 38v6M56 38v6M68 38v6" stroke="#777" stroke-width="1"/><path d="M22 46 L12 110 M78 46 L88 110 M50 46 L50 108 M18 46h64" ${S}/>`),
+  mat: ()=>sv(`<rect x="8" y="58" width="84" height="34" rx="4" fill="#d9d9d9" stroke="#1d3557" stroke-width="2.5"/><text x="50" y="80" font-size="10" text-anchor="middle" fill="#1d3557" font-family="Verdana">HEATPROOF</text>`),
+  balance: ()=>sv(`<rect x="22" y="56" width="56" height="6" rx="2" ${S}/><rect x="46" y="62" width="8" height="8" fill="#1d3557"/><rect x="14" y="70" width="72" height="36" rx="6" ${S}/><rect x="28" y="78" width="44" height="18" rx="3" fill="#e9f5db" stroke="#1d3557" stroke-width="1.5"/><text x="50" y="92" font-size="11" text-anchor="middle" font-family="Verdana" fill="#1d3557">25.0 g</text>`),
+  stopwatch: ()=>sv(`<rect x="44" y="14" width="12" height="10" rx="2" fill="#1d3557"/><circle cx="50" cy="66" r="36" ${S}/><circle cx="50" cy="66" r="3" fill="#1d3557"/><path d="M50 66 L50 40 M50 34v-4M86 66h-4M14 66h4M50 98v4" ${S}/><text x="50" y="88" font-size="9" text-anchor="middle" font-family="Verdana" fill="#1d3557">00:12</text>`),
+  ruler: ()=>sv(`<rect x="4" y="48" width="92" height="24" rx="2" fill="#fff3b0" stroke="#1d3557" stroke-width="2.5"/><path d="M10 48v10M18 48v6M26 48v10M34 48v6M42 48v10M50 48v6M58 48v10M66 48v6M74 48v10M82 48v6M90 48v10" stroke="#1d3557" stroke-width="1.5"/><text x="50" y="68" font-size="8" text-anchor="middle" font-family="Verdana" fill="#1d3557">cm</text>`),
+  newton: ()=>sv(`<rect x="38" y="8" width="24" height="84" rx="5" ${S}/><path d="M50 14 l-6 4 l12 6 l-12 6 l12 6 l-12 6 l12 6 l-6 4 L50 70" stroke="#e76f51" stroke-width="2" fill="none"/><path d="M62 20h-5M62 36h-5M62 52h-5M62 68h-5M62 84h-5" stroke="#1d3557" stroke-width="1.5"/><path d="M50 92 V104 Q50 114 42 110" ${S}/><text x="50" y="86" font-size="9" text-anchor="middle" font-family="Verdana" fill="#1d3557">N</text>`),
+  pipette: ()=>sv(`<ellipse cx="50" cy="20" rx="10" ry="13" fill="#e76f51" stroke="#1d3557" stroke-width="2"/><path d="M46 32 L46 96 L50 110 L54 96 L54 32" ${S}/><circle cx="50" cy="116" r="2.5" fill="#4cc9f0"/>`),
+  funnel: ()=>sv(`<path d="M26 26 L74 26 L52 60 L48 60 Z" fill="#fff" stroke="#999" stroke-width="1.5" stroke-dasharray="3 2"/><path d="M18 22 L82 22 L55 62 L55 104 L45 104 L45 62 Z" ${S}/>`),
+  evap: ()=>sv(`<path d="M18 60 Q50 98 82 60 Z" ${W}/><path d="M12 56 L88 56 Q84 92 50 94 Q16 92 12 56Z" ${S}/><rect x="38" y="70" width="5" height="5" fill="#fff" stroke="#1d3557"/><rect x="52" y="73" width="5" height="5" fill="#fff" stroke="#1d3557"/><rect x="46" y="80" width="5" height="5" fill="#fff" stroke="#1d3557"/>`),
+  spatula: ()=>sv(`<rect x="22" y="57" width="56" height="6" rx="3" fill="#bbb" stroke="#1d3557" stroke-width="2"/><ellipse cx="18" cy="60" rx="8" ry="6" ${S}/><path d="M78 56 L92 58 L92 62 L78 64" ${S}/>`),
+  clamp: ()=>sv(`<rect x="12" y="102" width="70" height="10" rx="2" ${S}/><rect x="28" y="8" width="6" height="94" ${S}/><rect x="25" y="36" width="12" height="10" fill="#1d3557"/><path d="M37 41 H68" ${S}/><path d="M68 32 Q80 32 80 41 Q80 50 68 50" ${S}/>`),
+  goggles: ()=>sv(`<path d="M8 58 Q8 44 22 44 L44 44 Q48 52 50 52 Q52 52 56 44 L78 44 Q92 44 92 58 Q92 76 76 76 Q62 76 56 64 Q50 60 44 64 Q38 76 24 76 Q8 76 8 58Z" fill="#cdeffd" ${S}/><path d="M8 56 L2 54 M92 56 L98 54" ${S}/>`),
+  tongs: ()=>sv(`<path d="M20 20 Q50 60 78 98 M80 20 Q50 60 22 98" ${S}/><circle cx="50" cy="59" r="4" fill="#1d3557"/><path d="M74 100 L84 96 M26 100 L16 96" ${S}/>`),
+};
+
+/* ============ EQUIPMENT FACTS ============ */
+const EQUIP = [
+ {k:'beaker', name:'Beaker', use:'Holds, mixes and heats liquids.', meas:'Only a rough volume – not accurate', unit:'—'},
+ {k:'cylinder', name:'Measuring cylinder', use:'Measures the volume of a liquid accurately.', meas:'Volume', unit:'cm³ (or ml)'},
+ {k:'conical', name:'Conical flask', use:'Holds and mixes liquids. The narrow neck stops splashing when you swirl it.', meas:'Nothing', unit:'—'},
+ {k:'testtube', name:'Test tube', use:'Holds small amounts of chemicals for reactions.', meas:'Nothing', unit:'—'},
+ {k:'boilingtube', name:'Boiling tube', use:'A bigger, wider test tube. Used for heating things.', meas:'Nothing', unit:'—'},
+ {k:'thermometer', name:'Thermometer', use:'Measures how hot or cold something is.', meas:'Temperature', unit:'°C (degrees Celsius)'},
+ {k:'bunsen', name:'Bunsen burner', use:'Heats things. Air hole open = hot blue flame. Air hole closed = yellow safety flame.', meas:'Nothing', unit:'—'},
+ {k:'tripod', name:'Tripod and gauze', use:'Holds a beaker over the Bunsen burner. The gauze spreads the heat.', meas:'Nothing', unit:'—'},
+ {k:'mat', name:'Heatproof mat', use:'Goes under the Bunsen burner to protect the bench.', meas:'Nothing', unit:'—'},
+ {k:'balance', name:'Balance (scales)', use:'Measures the mass of something.', meas:'Mass', unit:'g (grams) or kg'},
+ {k:'stopwatch', name:'Stopwatch', use:'Measures how long something takes.', meas:'Time', unit:'s (seconds)'},
+ {k:'ruler', name:'Ruler / metre rule', use:'Measures how long or far something is.', meas:'Length', unit:'mm, cm or m'},
+ {k:'newton', name:'Newton meter', use:'Measures force (like weight or a pull).', meas:'Force', unit:'N (newtons)'},
+ {k:'pipette', name:'Dropping pipette', use:'Moves small amounts of liquid, drop by drop.', meas:'Nothing', unit:'—'},
+ {k:'funnel', name:'Filter funnel (and filter paper)', use:'Filtering. Separates an insoluble solid (like sand) from a liquid.', meas:'Nothing', unit:'—'},
+ {k:'evap', name:'Evaporating basin (dish)', use:'Heated to boil off water and leave crystals (like salt).', meas:'Nothing', unit:'—'},
+ {k:'spatula', name:'Spatula', use:'Scoops up small amounts of solid or powder.', meas:'Nothing', unit:'—'},
+ {k:'clamp', name:'Clamp stand', use:'Holds equipment safely and still.', meas:'Nothing', unit:'—'},
+ {k:'goggles', name:'Safety goggles', use:'Protect your eyes.', meas:'Nothing', unit:'—'},
+ {k:'tongs', name:'Tongs', use:'Pick up and hold hot things.', meas:'Nothing', unit:'—'},
+];
+
+/* ============ CHART DRAWING ENGINE ============ */
+function fmt(v){ return Math.round(v*100)/100; }
+function chart(o){
+  const Wd=o.w||340, Ht=o.h||255, L=54, R=14, T=o.title?30:14, B=50;
+  const pw=Wd-L-R, ph=Ht-T-B, yMin=o.yMin||0;
+  const Y=v=>T+ph-(v-yMin)/(o.yMax-yMin)*ph;
+  let s=`<svg class="chart" viewBox="0 0 ${Wd} ${Ht}" ${o.id?`id="${o.id}"`:''} font-family="Verdana" font-size="11">`;
+  if(o.title) s+=`<text x="${L+pw/2}" y="18" text-anchor="middle" font-weight="bold" font-size="12" fill="#1d2433">${esc(o.title)}</text>`;
+  const minor = o.yMinor;
+  if(minor){ for(let v=yMin; v<=o.yMax+1e-9; v+=minor) s+=`<line x1="${L}" x2="${L+pw}" y1="${Y(v)}" y2="${Y(v)}" stroke="#eef2f7"/>`; }
+  for(let v=yMin; v<=o.yMax+1e-9; v+=o.yStep){ s+=`<line x1="${L}" x2="${L+pw}" y1="${Y(v)}" y2="${Y(v)}" stroke="#d6dde8"/><text x="${L-6}" y="${Y(v)+4}" text-anchor="end" fill="#333">${fmt(v)}</text>`; }
+  const geo={L,T,pw,ph,Y,yMin,yMax:o.yMax};
+  if(o.type==='bar'){
+    const n=o.labels.length, band=pw/n, bw=o.noGaps?band:band*0.6;
+    geo.band=band;
+    o.labels.forEach((lab,i)=>{
+      const cx=L+band*i+band/2;
+      if(o.ys && o.ys[i]!=null && o.ys[i]>yMin) s+=`<rect x="${cx-bw/2}" y="${Y(o.ys[i])}" width="${bw}" height="${Y(yMin)-Y(o.ys[i])}" fill="${o.colour||'#5b8def'}" stroke="#1d3557" stroke-width="1.2"/>`;
+      if(!o.hideCats) s+=`<text x="${cx}" y="${T+ph+16}" text-anchor="middle" fill="#333" font-size="10.5">${esc(lab)}</text>`;
+    });
+  } else {
+    const xMin=o.xMin||0, X=v=>L+(v-xMin)/(o.xMax-xMin)*pw;
+    geo.X=X; geo.xMin=xMin; geo.xMax=o.xMax;
+    for(let v=xMin; v<=o.xMax+1e-9; v+=o.xStep){ s+=`<line y1="${T}" y2="${T+ph}" x1="${X(v)}" x2="${X(v)}" stroke="#d6dde8"/><text x="${X(v)}" y="${T+ph+16}" text-anchor="middle" fill="#333">${fmt(v)}</text>`; }
+    if(o.fit){ let pts=[]; const a=o.fitFrom??xMin, b=o.fitTo??o.xMax; for(let i=0;i<=60;i++){ const x=a+(b-a)*i/60; pts.push(`${X(x)},${Y(o.fit(x))}`);} s+=`<polyline points="${pts.join(' ')}" fill="none" stroke="#e76f51" stroke-width="2.2"/>`; }
+    if(o.join){ s+=`<polyline points="${o.xs.map((x,i)=>X(x)+','+Y(o.ys[i])).join(' ')}" fill="none" stroke="#e76f51" stroke-width="2"/>`; }
+    if(o.xs && o.ys) o.xs.forEach((x,i)=>{ const px=X(x), py=Y(o.ys[i]); s+=`<path d="M${px-5} ${py-5}L${px+5} ${py+5}M${px+5} ${py-5}L${px-5} ${py+5}" stroke="#1d3557" stroke-width="2.2"/>`; if(o.ring===i) s+=`<circle cx="${px}" cy="${py}" r="11" fill="none" stroke="#b91c1c" stroke-width="2"/>`; });
+  }
+  s+=`<path d="M${L} ${T} V${T+ph} H${L+pw}" stroke="#1d2433" stroke-width="2" fill="none"/>`;
+  if(o.xL && !o.hideX) s+=`<text x="${L+pw/2}" y="${Ht-10}" text-anchor="middle" font-weight="bold" fill="#1d2433">${esc(o.xL)}</text>`;
+  if(o.yL && !o.hideY) s+=`<text transform="translate(14 ${T+ph/2}) rotate(-90)" text-anchor="middle" font-weight="bold" fill="#1d2433">${esc(o.yL)}</text>`;
+  s+=`<g id="${o.id?o.id+'-marks':'m'}"></g></svg>`;
+  o._geo=geo;
+  return s;
+}
+
+function cylinderScale(v,max,minor,major){
+  const top=20,bot=230,yy=x=>bot-x/max*(bot-top);
+  let s=`<svg class="mid" viewBox="0 0 150 260" font-family="Verdana" font-size="11">`;
+  const y=yy(v);
+  s+=`<path d="M50 ${y-5} Q70 ${y+5} 90 ${y-5} L90 ${bot} L50 ${bot} Z" fill="#a8dadc"/>`;
+  for(let m=0;m<=max+1e-9;m+=minor){ const isM=Math.abs(m/major-Math.round(m/major))<1e-6; s+=`<line x1="50" x2="${isM?66:58}" y1="${yy(m)}" y2="${yy(m)}" stroke="#1d3557" stroke-width="${isM?1.6:1}"/>`; if(isM && m>0) s+=`<text x="96" y="${yy(m)+4}" fill="#1d3557">${m}</text>`; }
+  s+=`<path d="M46 12 L50 16 L50 ${bot} L90 ${bot} L90 14" stroke="#1d3557" stroke-width="2.5" fill="none"/><rect x="36" y="${bot}" width="68" height="10" fill="none" stroke="#1d3557" stroke-width="2.5"/>`;
+  s+=`<text x="96" y="12" fill="#1d3557">cm³</text></svg>`;
+  return s;
+}
+function thermoScale(v,lo,hi,minor,major){
+  const top=20,bot=220,yy=x=>bot-(x-lo)/(hi-lo)*(bot-top);
+  let s=`<svg class="mid" viewBox="0 0 150 270" font-family="Verdana" font-size="11">`;
+  s+=`<rect x="70" y="${yy(v)}" width="10" height="${250-yy(v)}" fill="#e63946"/><circle cx="75" cy="248" r="14" fill="#e63946" stroke="#1d3557" stroke-width="2.5"/>`;
+  s+=`<rect x="66" y="10" width="18" height="230" rx="9" fill="none" stroke="#1d3557" stroke-width="2.5"/>`;
+  for(let m=lo;m<=hi+1e-9;m+=minor){ const isM=Math.abs((m-lo)/major-Math.round((m-lo)/major))<1e-6; s+=`<line x1="84" x2="${isM?98:91}" y1="${yy(m)}" y2="${yy(m)}" stroke="#1d3557" stroke-width="${isM?1.6:1}"/>`; if(isM) s+=`<text x="102" y="${yy(m)+4}" fill="#1d3557">${m}</text>`; }
+  s+=`<text x="102" y="12" fill="#1d3557">°C</text></svg>`;
+  return s;
+}
+
+/* ============ QUESTION BANK ============ */
+const SCIENCE_TOPICS = {
+  equip:{name:'Types of equipment', ico:'🧪'},
+  units:{name:'What they measure & units', ico:'📏'},
+  choose:{name:'Choosing the right equipment', ico:'🤔'},
+  bar:{name:'Bar charts', ico:'📊'},
+  line:{name:'Line graphs', ico:'📈'},
+  trends:{name:'Reading results & trends', ico:'🔍'},
+};
+const ALL_TOPICS = {
+  ...SCIENCE_TOPICS,
+  months:{name:'Months of the Year (Spelling)', ico:'📅'},
+  'months-mc':{name:'Months of the Year (Quiz)', ico:'🎯'}
+};
+
+function MC(topic,q,right,wrongs,why,img){ const opts=shuffle([right,...wrongs]); return {type:'mc',topic,q,opts,correct:opts.indexOf(right),why,img:img||''}; }
+function NUM(topic,q,ans,unit,why,img,tol){ return {type:'num',topic,q,ans,unit,why,img:img||'',tol:tol||0}; }
+
+const STATIC = [
+ // ---- equipment
+ ()=>MC('equip','Which flame is the safety flame?','Yellow flame (air hole closed)',['Blue flame (air hole open)','Purple flame','A flame with no colour'],'The yellow flame is easy to see, so people don\'t touch it by mistake. Use it when you are not heating.'),
+ ()=>MC('equip','Which Bunsen flame is the hottest?','Blue, roaring flame (air hole open)',['Yellow flame (air hole closed)','Orange flame','They are all the same'],'Opening the air hole lets in more air (oxygen). This makes a hotter blue flame.'),
+ ()=>MC('equip','What does the gauze do?','Spreads the heat and holds the beaker',['Measures the temperature','Stops the gas coming out','Cools the beaker down'],'The gauze sits on the tripod. It spreads the heat evenly and stops the beaker falling through.'),
+ ()=>MC('equip','Why is a conical flask good for swirling liquids?','The narrow neck stops the liquid splashing out',['It measures volume very accurately','It gets hotter than a beaker','It is made of plastic'],'The sloping sides and narrow neck keep the liquid inside when you swirl it.'),
+ ()=>MC('equip','What should you put under a Bunsen burner?','A heatproof mat',['A beaker','Filter paper','A test tube rack'],'A heatproof mat protects the bench from heat.'),
+ ()=>MC('equip','What is the difference between a test tube and a boiling tube?','A boiling tube is bigger and better for heating',['A test tube measures volume','A boiling tube is made of plastic','There is no difference'],'Boiling tubes are wider and thicker, so they are safer for heating.'),
+ ()=>MC('equip','What should you always wear when heating chemicals?','Safety goggles',['Gloves made of wool','A hat','Sunglasses'],'Goggles protect your eyes from splashes and hot liquids.'),
+ ()=>MC('bar','Eye colour vs number of people. Which graph should you draw?','Bar chart',['Line graph','Pie of numbers','No graph'],'Eye colour is a word, not a number. Words = bar chart. Numbers vs numbers = line graph.'),
+ ()=>MC('bar','Which 3 things must every graph have?','A title, and both axes labelled with units',['Colours, stickers and a key','Only numbers','Your name and the date'],'Title. Each axis labelled with what it is AND its unit, e.g. Time (s). Right variable on the right axis.'),
+ ()=>MC('line','Time (s) vs distance (m). Which graph should you draw?','Line graph',['Bar chart','No graph','A table only'],'Both are numbers, so draw a line graph.'),
+ ()=>MC('equip','What is a Bunsen burner for?','Heating things',['Measuring temperature','Measuring mass','Filtering'],'A Bunsen burner is used to heat things.'),
+ ()=>MC('equip','What is a filter funnel (with filter paper) for?','Separating an insoluble solid from a liquid',['Heating liquids','Measuring volume','Getting salt crystals'],'Filtering: the solid (like sand) stays in the paper. The liquid goes through.'),
+ ()=>MC('equip','What is an evaporating basin for?','Heating a solution to leave crystals behind',['Measuring volume','Filtering sand','Measuring force'],'The water evaporates (turns to gas) and the solid, like salt, is left.'),
+ // ---- units
+ ()=>MC('units','What is the unit for temperature?','°C (degrees Celsius)',['g (grams)','N (newtons)','cm³'],'Temperature is measured with a thermometer, in °C.'),
+ ()=>MC('units','What is the unit for force?','N (newtons)',['kg','°C','cm'],'Force is measured with a newton meter, in newtons (N).'),
+ ()=>MC('units','What is the unit for mass?','g (grams)',['N (newtons)','cm³','s (seconds)'],'Mass is measured on a balance, in grams (g) or kilograms (kg).'),
+ ()=>MC('units','What is the unit for the volume of a liquid?','cm³ (or ml)',['cm','g','°C'],'Volume uses cm³ (centimetres cubed). 1 cm³ is the same as 1 ml.'),
+ ()=>MC('units','What is the unit for time?','s (seconds)',['m (metres)','N (newtons)','g (grams)'],'Time is measured with a stopwatch, in seconds (s).'),
+ ()=>MC('units','What does a balance measure?','Mass',['Force','Volume','Temperature'],'A balance (scales) measures mass in grams.'),
+ ()=>MC('units','What does a newton meter measure?','Force',['Mass','Length','Time'],'A newton meter measures force (like weight) in newtons.'),
+ ()=>MC('units','What does a measuring cylinder measure?','Volume of a liquid',['Mass','Temperature','Force'],'A measuring cylinder measures volume in cm³.'),
+ ()=>MC('units','1 cm³ is the same as...','1 ml',['1 litre','1 gram','10 ml'],'1 cm³ = 1 ml. They are two names for the same amount.'),
+ ()=>NUM('units','How many grams are in 1 kilogram?',1000,'g','Kilo means 1000. So 1 kg = 1000 g.'),
+ ()=>NUM('units','How many millimetres (mm) are in 1 centimetre (cm)?',10,'mm','1 cm = 10 mm. Look at a ruler – there are 10 small lines in each cm.'),
+ ()=>NUM('units','How many centimetres (cm) are in 1 metre (m)?',100,'cm','1 m = 100 cm.'),
+ ()=>MC('units','How should you read a measuring cylinder?','Eye level with the bottom of the curve (meniscus)',['Look down from the top','Read the top of the curve','Hold it up to the light and guess'],'The liquid curves. This curve is called the meniscus. Read the bottom of it, with your eye at the same level.'),
+ ()=>MC('units','Which piece of equipment measures length?','Ruler',['Balance','Thermometer','Stopwatch'],'A ruler or metre rule measures length in mm, cm or m.'),
+ // ---- choosing
+ ()=>MC('choose','You want to measure exactly 30 cm³ of water. Which is best?','Measuring cylinder',['Beaker','Conical flask','Test tube'],'Beakers only have rough marks. A measuring cylinder is accurate.'),
+ ()=>MC('choose','You want to separate sand from water. What do you use?','Filter funnel and filter paper',['Evaporating basin','Thermometer','Newton meter'],'Filtering traps the sand in the paper. The water goes through.'),
+ ()=>MC('choose','You want to get salt crystals from salty water. What do you use?','Evaporating basin (heated)',['Filter funnel and filter paper','Measuring cylinder','Ruler'],'Heating the evaporating basin boils off the water. The salt is left behind.'),
+ ()=>MC('choose','Which set of equipment do you need to heat a beaker of water?','Bunsen burner, tripod, gauze and heatproof mat',['Bunsen burner, spatula and ruler','Balance and stopwatch','Funnel and filter paper'],'The tripod and gauze hold the beaker. The mat protects the bench.'),
+ ()=>MC('choose','You want to see how the temperature of water changes over 10 minutes. What do you need?','Thermometer and stopwatch',['Balance and ruler','Newton meter and stopwatch','Thermometer and balance'],'Thermometer for temperature. Stopwatch for time.'),
+ ()=>MC('choose','You need to add 3 drops of indicator. What do you use?','Dropping pipette',['Spatula','Measuring cylinder','Tongs'],'A dropping pipette moves liquid one drop at a time.'),
+ ()=>MC('choose','You need to pick up a hot evaporating basin. What do you use?','Tongs',['Your hands','Spatula','Pipette'],'Tongs let you hold hot things safely.'),
+ ()=>MC('choose','You need to move a small amount of salt powder. What do you use?','Spatula',['Pipette','Funnel','Tongs'],'A spatula scoops up small amounts of solids.'),
+ ()=>MC('choose','You want to find the mass of an apple. What do you use?','Balance',['Newton meter','Ruler','Measuring cylinder'],'Mass is measured on a balance, in grams.'),
+ ()=>MC('choose','You want to measure how far a toy car rolls. What do you use?','Metre rule or tape measure',['Balance','Thermometer','Stopwatch'],'Distance is a length, so use a metre rule or tape measure.'),
+ ()=>MC('choose','You want to measure the weight of a bag. What do you use?','Newton meter',['Balance in grams','Ruler','Thermometer'],'Weight is a force, so it is measured with a newton meter, in newtons.'),
+ ()=>MC('choose','Which is the most accurate for measuring 8 cm³ of water?','10 cm³ measuring cylinder',['100 cm³ measuring cylinder','250 cm³ beaker','100 cm³ conical flask'],'Pick the smallest measuring cylinder that fits the amount. Its marks are closer together, so it is more accurate.'),
+ ()=>MC('choose','You need to hold a boiling tube still while you heat it for a long time. What do you use?','Clamp stand',['Test tube rack','Spatula','Funnel'],'A clamp stand holds equipment safely and steadily.'),
+ // ---- bar
+ ()=>MC('bar','When should you draw a bar chart?','When the thing you change is words or groups (like colours or types)',['When both things are numbers','When you are measuring time','Never in science'],'Use a bar chart for categories (words). Use a line graph when both are numbers.'),
+ ()=>MC('bar','Which results should go in a bar chart?','How far a car rolls on different surfaces',['Temperature of tea every minute','Length of a spring with different forces','Height of a plant each week'],'"Different surfaces" are words (carpet, wood...). So use a bar chart.'),
+ ()=>MC('bar','In a bar chart, the bars should be...','The same width, with gaps between them',['Different widths','Touching each other','Different colours with no labels'],'Same width. Equal gaps. This keeps it fair and neat.'),
+ ()=>MC('bar','What goes on the y-axis (up the side)?','The thing you measure',['The thing you change','The title','The names of the groups'],'Y-axis = what you measure (dependent variable). X-axis = what you change (independent variable).'),
+ ()=>MC('bar','What should you use to draw a bar chart?','A sharp pencil and a ruler',['A felt tip pen','A biro, freehand','Crayons'],'Pencil means you can fix mistakes. A ruler keeps lines straight.'),
+ // ---- line
+ ()=>MC('line','When should you draw a line graph?','When both things are numbers',['When the thing you change is words','When you have only one result','When you are measuring colours'],'Line graphs are for numbers on both axes, like time and temperature.'),
+ ()=>MC('line','What goes on the x-axis (along the bottom)?','The thing you change (independent variable)',['The thing you measure (dependent variable)','The title','The units only'],'Remember DRY MIX: Dependent-Responding-Y. Manipulated-Independent-X.'),
+ ()=>MC('line','How should you plot points on a line graph?','Small, neat crosses (×) in pencil',['Big dots in pen','Tick marks','Colour in squares'],'Small crosses are accurate. You can see exactly where the point is.'),
+ ()=>MC('line','What is a line of best fit?','A smooth line or curve that goes through or close to most points',['A line joining every point dot-to-dot','A line from the corner to the top','The line of the y-axis'],'A line of best fit shows the pattern. It does not have to touch every point.'),
+ ()=>MC('line','The numbers on an axis (the scale) must...','Go up in equal steps',['Start at 100','Go up by different amounts','Only use odd numbers'],'Equal steps like 0, 5, 10, 15. Never 0, 5, 20, 22.'),
+ ()=>MC('line','Which is the best axis label?','Temperature (°C)',['Temperature','°C','Temp stuff'],'A good label has the name AND the unit in brackets.'),
+ ()=>MC('line','Which results should go in a line graph?','Temperature of tea every minute for 10 minutes',['Favourite fruit in your class','Pulse rate after different sports','Mass of different types of rock'],'Time and temperature are both numbers, so draw a line graph.'),
+ ()=>MC('line','How much of the graph paper should your graph use?','More than half',['A tiny corner','Exactly one square','It doesn\'t matter'],'A bigger graph is easier to read and more accurate.'),
+ // ---- trends
+ ()=>MC('trends','What is an anomalous result?','A result that does not fit the pattern',['The biggest result','The first result','A result in the wrong colour'],'An anomaly is odd one out. It is often caused by a mistake.'),
+ ()=>MC('trends','What should you do with an anomalous result?','Circle it and ignore it when drawing the line or working out the mean',['Rub it out and pretend it never happened','Make the line go through it','Use it twice'],'Circle it so the reader can see it. Leave it out of the line of best fit and the mean. Repeat it if you can.'),
+ ()=>MC('trends','Which is the best way to describe a trend?','As the temperature increases, the time taken decreases.',['It goes down.','The graph is a line.','Some numbers are big.'],'Use: "As ___ increases, ___ increases/decreases." Add numbers from the graph for extra marks.'),
+ ()=>MC('trends','Why do scientists repeat an experiment?','To spot anomalies and make results more reliable',['To make it take longer','Because the first try is always wrong','To use more equipment'],'Repeats help you spot odd results and trust your mean.'),
+ ()=>MC('trends','In a results table, where do the units go?','In the column heading',['In every box','At the bottom of the page','Units are not needed'],'Write e.g. "Time (s)" in the heading. Then just write numbers in the boxes.'),
+ ()=>MC('trends','What goes in the first column of a results table?','The thing you change (independent variable)',['The thing you measure','The mean','Your name'],'First column = what you change. Next columns = what you measure.'),
+];
+
+/* ---- generated questions ---- */
+const GEN = {
+  equip:[
+    ()=>{ const e=pick(EQUIP); const wr=shuffle(EQUIP.filter(x=>x.k!==e.k)).slice(0,3).map(x=>x.name); return MC('equip','What is this piece of equipment called?',e.name,wr,`This is a ${e.name.toLowerCase()}. ${e.use}`,DRAW[e.k]()); },
+    ()=>{ const e=pick(EQUIP); const wr=shuffle(EQUIP.filter(x=>x.k!==e.k)).slice(0,3).map(x=>x.use); return MC('equip',`What is a ${e.name.toLowerCase()} used for?`,e.use,wr,`${e.name}: ${e.use}`,DRAW[e.k]()); },
+  ],
+  units:[
+    ()=>{ const c=pick([{max:50,minor:2,major:10},{max:100,minor:5,major:20},{max:25,minor:1,major:5}]); const v=c.minor*rnd(Math.ceil(c.max*0.2/c.minor),Math.floor(c.max*0.9/c.minor));
+      return NUM('units','What is the volume of liquid in this measuring cylinder?',v,'cm³',`It reads ${v} cm³. Each small line is worth ${c.minor} cm³. Read the BOTTOM of the curve (meniscus).`,cylinderScale(v,c.max,c.minor,c.major)); },
+    ()=>{ const c=pick([{lo:0,hi:50},{lo:10,hi:60},{lo:-10,hi:40}]); const v=c.lo+2*rnd(3,22);
+      return NUM('units','What temperature does this thermometer show?',v,'°C',`It reads ${v} °C. Each small line is worth 2 °C. Count up from the nearest big number.`,thermoScale(v,c.lo,c.hi,2,10)); },
+    ()=>{ const e=pick(EQUIP.filter(x=>x.meas!=='Nothing' && !x.meas.startsWith('Only'))); const all=['Temperature','Mass','Time','Length','Force','Volume']; return MC('units',`What does a ${e.name.toLowerCase()} measure?`,e.meas,shuffle(all.filter(x=>x!==e.meas)).slice(0,3),`${e.name} measures ${e.meas.toLowerCase()} in ${e.unit}.`,DRAW[e.k]()); },
+  ],
+  choose:[],
+  bar:[
+    ()=>{ const labs=['Cola','Orange juice','Milk','Water']; const ys=[rnd(6,8)*5,rnd(3,5)*5,rnd(1,2)*5,0]; const o={type:'bar',labels:labs,ys,yMax:45,yStep:5,xL:'Drink',yL:'Sugar (g)',title:'Sugar in drinks'}; const i=rnd(0,2);
+      return NUM('bar',`How much sugar is in the ${labs[i].toLowerCase()}?`,ys[i],'g',`Go from the top of the bar straight across to the y-axis. It is ${ys[i]} g.`,chart(o)); },
+    ()=>{ const labs=['Carpet','Wood','Tiles','Grass']; let ys=shuffle([20,40,60,80,100,120]).slice(0,4); const o={type:'bar',labels:labs,ys,yMax:140,yStep:20,xL:'Surface',yL:'Distance rolled (cm)',title:'How far a toy car rolled'}; const most=Math.random()<.5; const v=most?Math.max(...ys):Math.min(...ys); const ans=labs[ys.indexOf(v)];
+      return MC('bar',`On which surface did the car roll ${most?'the furthest':'the shortest distance'}?`,ans,labs.filter(x=>x!==ans),`Look for the ${most?'tallest':'shortest'} bar. It is ${ans} (${v} cm).`,chart(o)); },
+    ()=>{ const k=rnd(0,2); const o={type:'bar',labels:['Sitting','Walking','Jogging','Running'],ys:[70,90,130,160],yMax:180,yStep:20,xL:'Activity',yL:'Pulse (beats per min)',title:'Pulse after exercise'};
+      let right; if(k===0){o.hideY=true; right='A label on the y-axis';} else if(k===1){o.noGaps=true; right='Gaps between the bars';} else {o.title=''; right='A title';}
+      return MC('bar','What is missing or wrong in this bar chart?',right,['A label on the y-axis','Gaps between the bars','A title','Labels under the bars'].filter(x=>x!==right).slice(0,3),`${right} is missing. A good bar chart has: a title, labels on both axes with units, bars the same width with gaps.`,chart(o)); },
+  ],
+  line:[
+    ()=>{ const f=x=>30+50*Math.exp(-x/4); const xs=[0,2,4,6,8,10]; const ys=xs.map(x=>Math.round(f(x))); const xi=pick([2,4,6]); const ans=Math.round(f(xi));
+      const o={type:'line',xs,ys,xMax:10,xStep:1,yMax:90,yStep:10,yMinor:5,xL:'Time (min)',yL:'Temperature (°C)',title:'Cup of tea cooling down',fit:f};
+      return NUM('line',`What was the temperature at ${xi} minutes?`,ans,'°C',`Go up from ${xi} on the x-axis to the line. Then go across to the y-axis. It is about ${ans} °C.`,chart(o),3); },
+    ()=>{ const xs=[0,1,2,3,4,5]; const k=pick([2,3]); const ys=xs.map(x=>k*x); const xi=pick([1.5,2.5,3.5]); const ans=k*xi;
+      const o={type:'line',xs,ys,xMax:6,xStep:1,yMax:k*6,yStep:k===2?2:3,xL:'Force (N)',yL:'Stretch of spring (cm)',title:'Stretching a spring',fit:x=>k*x};
+      return NUM('line',`Use the line of best fit. How much did the spring stretch with a force of ${xi} N?`,ans,'cm',`${xi} N is half-way between two lines. Go up to the line, then across. It is ${ans} cm.`,chart(o),0.6); },
+    ()=>{ const k=rnd(0,1); const o={type:'line',xs:[0,2,4,6,8],ys:[20,30,40,50,60],xMax:8,xStep:2,yMax:70,yStep:10,xL:'Time (min)',yL:k?'Temperature':'Temperature (°C)',title:'Heating water',fit:x=>20+5*x};
+      let right; if(k){ right='The units on the y-axis label'; } else { o.hideX=true; right='A label on the x-axis'; }
+      return MC('line','What is missing from this line graph?',right,['The units on the y-axis label','A label on the x-axis','A title','The crosses'].filter(x=>x!==right).slice(0,3),`${right} is missing. Every axis needs a name and a unit, like "Time (min)".`,chart(o)); },
+  ],
+  trends:[
+    ()=>{ const T=pick([
+        {f:x=>5+4*x, yMax:50, xL:'Mass added (g)', yL:'Stretch (cm)', a:'mass added', b:'stretch', ans:0},
+        {f:x=>48-4*x, yMax:50, xL:'Time (min)', yL:'Temperature (°C)', a:'time', b:'temperature', ans:1},
+        {f:x=>42*(1-Math.exp(-x/2.5)), yMax:50, xL:'Time (s)', yL:'Gas made (cm³)', a:'time', b:'volume of gas', ans:2},
+      ]);
+      const xs=[0,2,4,6,8,10]; const ys=xs.map(x=>Math.round(T.f(x)));
+      const opts=[`As the ${T.a} increases, the ${T.b} increases.`,`As the ${T.a} increases, the ${T.b} decreases.`,`As the ${T.a} increases, the ${T.b} increases at first, then levels off.`,'There is no pattern.'];
+      const o={type:'line',xs,ys,xMax:10,xStep:2,yMax:T.yMax,yStep:10,xL:T.xL,yL:T.yL,fit:T.f};
+      return MC('trends','Which sentence best describes the trend (pattern)?',opts[T.ans],opts.filter((_,i)=>i!==T.ans),`Follow the line from left to right. ${opts[T.ans]}`,chart(o)); },
+    ()=>{ const xs=[0,1,2,3,4,5]; const ys=xs.map(x=>2*x); const bad=rnd(1,4); ys[bad]=ys[bad]+pick([4,5,-3]); if(ys[bad]<0) ys[bad]=ys[bad]+8;
+      const o={type:'line',xs,ys,xMax:5,xStep:1,yMax:14,yStep:2,xL:'Force (N)',yL:'Stretch (cm)',title:'Stretching a spring',fit:x=>2*x};
+      return MC('trends','Which result is anomalous (does not fit the pattern)?',`The result at ${bad} N`,xs.filter(x=>x!==bad).sort(()=>Math.random()-.5).slice(0,3).map(x=>`The result at ${x} N`),`The cross at ${bad} N is far away from the line of best fit. So it is the anomaly.`,chart(o)); },
+    ()=>{ const m=rnd(10,20); const a=m-1,b=m+1,c=m; return NUM('trends',`Ella timed her experiment 3 times: ${a} s, ${b} s and ${c} s. What is the mean?`,m,'s',`Add them up: ${a}+${b}+${c} = ${a+b+c}. Divide by how many (3). ${a+b+c} ÷ 3 = ${m} s.`); },
+    ()=>{ const m=rnd(12,18); const vals=shuffle([m,m+1,m-1,m*2+1]); return MC('trends',`Sam repeated a test 4 times: ${vals.join(' s, ')} s. Which result is anomalous?`,`${m*2+1} s`,[m,m+1,m-1].map(x=>x+' s'),`${m*2+1} s is much bigger than the others. It does not fit, so it is the anomaly. Leave it out of the mean.`); },
+  ],
+};
+
+function staticFor(topic){ return STATIC.map(f=>f()).filter(q=>q.topic===topic); }
+function makeQs(topic,n){
+  if (topic === 'months') {
+    let items = shuffle(WELSH_MONTHS);
+    return items.slice(0, n).map(item => ({
+      type: 'text',
+      topic: 'months',
+      q: `Write the Welsh month for "${item.en}":`,
+      ans: item.cy,
+      why: `${item.en} in Welsh is "${item.cy}".`
+    }));
+  }
+  if (topic === 'months-mc') {
+    let items = shuffle(WELSH_MONTHS);
+    return items.slice(0, n).map(item => {
+      const wrongs = shuffle(WELSH_MONTHS.filter(x => x.cy !== item.cy)).slice(0, 3).map(x => x.cy);
+      return MC('months-mc', `What is "${item.en}" in Welsh?`, item.cy, wrongs, `${item.en} = ${item.cy}.`);
+    });
+  }
+
+  let st=shuffle(staticFor(topic)); const gens=GEN[topic]||[];
+  let out=[]; let gi=0;
+  while(out.length<n){
+    if(gens.length && (out.length%2===1 || !st.length)){ out.push(gens[gi%gens.length]()); gi++; }
+    else if(st.length){ out.push(st.pop()); }
+    else break;
+  }
+  return shuffle(out);
+}
+
+/* ============ LEARN (ALL TOPICS RESTORED) ============ */
+function learnMenu(){
+  SPEAK=[];
+  show(`<h2>📖 Learn</h2><p>Pick a topic. Read it, then press <b>Practise this</b>.</p>
+  <div class="menu">${Object.entries(SCIENCE_TOPICS).map(([k,t])=>`<button class="btn" onclick="learn('${k}')"><span class="ico">${t.ico}</span><span><b>${t.name}</b></span></button>`).join('')}</div>
+  <button class="btn ghost" onclick="examHome()">← Back</button>`);
+}
+function learn(k){
+  SPEAK=[];
+  if(k==='months'){
+    let rows = WELSH_MONTHS.map((m, idx) => `<tr><td>${idx+1}. ${m.en}</td><td><b>${m.cy}</b></td><td><button class="speak" onclick="sayText('${m.cy}','cy-GB')">🔊</button></td></tr>`).join('');
+    let h = `<p>Learn the 12 months of the year in Welsh. In the test, you will be given the English months in random order and will need to write out the Welsh months.</p>
+    <table><tr><th>English</th><th>Welsh (Cymraeg)</th><th>Listen</th></tr>${rows}</table>
+    <div class="tip">💡 <b>Spelling Tips:</b><br>
+    • <b>Gorffennaf</b> has double <b>ff</b> and double <b>nn</b>.<br>
+    • <b>Tachwedd</b> ends with double <b>dd</b>.<br>
+    • <b>Ebrill</b> ends with double <b>ll</b>.<br>
+    • Don't forget capital letters at the start of every month!</div>
+    <p><a class="btn" style="text-align:center" href="https://quizlet.com/gb/1231107516/misoedd-y-flwyddyn-months-of-the-year-flash-cards/" target="_blank" rel="noopener">🔗 Open Miss Evans' Quizlet Flashcards</a></p>`;
+    show(`<h2>📅 Months of the Year</h2><div class="card">${h}</div>
+    <button class="btn primary" onclick="practise('months')">Practise Spelling ✏️</button>
+    <button class="btn ghost" onclick="examHome()">← Back to Exam</button>`);
+    return;
+  }
+
+  let h='';
+  if(k==='equip'){
+    h=`<p>You need to know the <b>name</b> and the <b>job</b> of each piece of equipment.</p>
+    <div class="grid">${EQUIP.map(e=>`<div class="eq">${DRAW[e.k]()}<b>${e.name}</b>${e.use}</div>`).join('')}</div>
+    <div class="tip">🔥 <b>Bunsen burner:</b><br>Air hole <b>closed</b> → <b>yellow</b> safety flame.<br>Air hole <b>open</b> → <b>blue</b> hot flame.</div>`;
+  }
+  if(k==='units'){
+    h=`<div class="key">⭐ <b>The big 5 to know:</b> measuring cylinder, thermometer, balance, stopwatch and ruler – and their units.</div>
+    <div class="grid">${['cylinder','thermometer','balance','stopwatch','ruler'].map(k=>{const e=EQUIP.find(x=>x.k===k);return `<div class="eq">${DRAW[k]()}<b>${e.name}</b>${e.meas}<br><b>${e.unit}</b></div>`}).join('')}</div>
+    <table><tr><th>What you measure</th><th>Equipment</th><th>Unit</th></tr>
+    <tr><td>Volume (of a liquid)</td><td>Measuring cylinder</td><td>cm³ or ml</td></tr>
+    <tr><td>Mass</td><td>Balance</td><td>g or kg</td></tr>
+    <tr><td>Temperature</td><td>Thermometer</td><td>°C</td></tr>
+    <tr><td>Time</td><td>Stopwatch</td><td>s</td></tr>
+    <tr><td>Length / distance</td><td>Ruler, metre rule</td><td>mm, cm, m</td></tr>
+    <tr><td>Force (e.g. weight)</td><td>Newton meter</td><td>N</td></tr>
+    <tr><td>Current (electricity)</td><td>Ammeter</td><td>A (amps)</td></tr>
+    <tr><td>Voltage</td><td>Voltmeter</td><td>V (volts)</td></tr></table>
+    <h3>Handy facts</h3><ul><li>1 cm = 10 mm</li><li>1 m = 100 cm</li><li>1 kg = 1000 g</li><li>1 cm³ = 1 ml</li></ul>
+    <h3>How to read a scale</h3>
+    <div class="qimg">${cylinderScale(34,50,2,10)}</div>
+    <ol><li>Find two big numbers next to each other (e.g. 30 and 40).</li><li>Count the spaces between them (5 spaces).</li><li>Gap ÷ spaces = what one small line is worth (10 ÷ 5 = <b>2</b>).</li><li>Count up from the lower big number.</li><li>For liquids, read the <b>bottom of the curve</b> (the meniscus), with your eye level.</li></ol>
+    <p>This one reads <b>34 cm³</b>.</p>`;
+  }
+  if(k==='choose'){
+    h=`<table><tr><th>Job</th><th>Use this</th></tr>
+    <tr><td>Measure a liquid accurately</td><td>Measuring cylinder (pick the smallest one that fits)</td></tr>
+    <tr><td>Heat a beaker</td><td>Bunsen burner + tripod + gauze + heatproof mat</td></tr>
+    <tr><td>Separate sand from water</td><td>Filter funnel + filter paper (filtering)</td></tr>
+    <tr><td>Get salt from salty water</td><td>Evaporating basin, heated</td></tr>
+    <tr><td>Add a few drops</td><td>Dropping pipette</td></tr>
+    <tr><td>Move a powder</td><td>Spatula</td></tr>
+    <tr><td>Hold something hot</td><td>Tongs</td></tr>
+    <tr><td>Hold something still</td><td>Clamp stand</td></tr>
+    <tr><td>Swirl or mix liquids</td><td>Conical flask</td></tr>
+    <tr><td>Find mass</td><td>Balance</td></tr>
+    <tr><td>Find weight (a force)</td><td>Newton meter</td></tr></table>
+    <div class="tip">💡 Ask yourself: <b>What am I measuring?</b> Then pick the tool for that job. Then think: <b>what keeps me safe?</b> (goggles, mat, tongs).</div>
+    <div class="qimg">${DRAW.bunsen()} ${DRAW.tripod()} ${DRAW.beaker()}</div>`;
+  }
+  if(k==='bar'){
+    h=`<p>Use a <b>bar chart</b> when you are comparing <b>words</b> (like eye colour, types of drink, surfaces).</p>
+    ${chart({type:'bar',labels:['Brown','Blue','Green','Grey'],ys:[12,8,4,2],yMax:14,yStep:2,xL:'Eye colour',yL:'Number of people',title:'Eye colour in our class'})}
+    <p class="small">Eye colour is a word, so it goes along the bottom. "Number of people" is what we count, so it goes up the side.</p>
+    <h3>Checklist ✅</h3><ul><li>Use a <b>sharp pencil and ruler</b>.</li><li>Add a <b>title</b>.</li><li>X-axis: the groups (what you change).</li><li>Y-axis: what you measure, with a <b>unit</b> e.g. <b>Distance (cm)</b>.</li><li>Y-axis numbers go up in <b>equal steps</b>.</li><li>Bars the <b>same width</b> with <b>gaps</b>.</li></ul>`;
+  }
+  if(k==='line'){
+    h=`<p>Use a <b>line graph</b> when <b>both</b> things are <b>numbers</b> (time and temperature).</p>
+    ${chart({type:'line',xs:[0,2,4,6,8,10],ys:[80,60,48,41,37,34],xMax:10,xStep:1,yMax:90,yStep:10,xL:'Time (min)',yL:'Temperature (°C)',title:'Cup of tea cooling down',fit:x=>30+50*Math.exp(-x/4)})}
+    <div class="key">🧠 <b>DRY MIX</b><br><b>D</b>ependent, <b>R</b>esponding → <b>Y</b>-axis (what you measure)<br><b>M</b>anipulated, <b>I</b>ndependent → <b>X</b>-axis (what you change)</div>
+    <h3>Checklist ✅</h3><ul><li>Sharp <b>pencil</b> and <b>ruler</b>.</li><li>Label both axes with the <b>unit</b> e.g. <b>Time (min)</b>.</li><li>Scales go up in <b>equal steps</b>.</li><li>Graph fills <b>more than half</b> the grid.</li><li>Plot points with small neat <b>crosses ×</b>.</li><li>Draw a smooth <b>line of best fit</b> (straight or curved). It goes close to most points. Don't go dot-to-dot.</li><li>Add a <b>title</b>.</li></ul>
+    <div class="tip">Your teacher may have their own rules. If so, follow theirs.</div>`;
+  }
+  if(k==='trends'){
+    h=`<h3>Results tables</h3>
+    <table><tr><th>Time (min)</th><th>Temperature (°C)</th></tr><tr><td>0</td><td>80</td></tr><tr><td>2</td><td>60</td></tr><tr><td>4</td><td>48</td></tr></table>
+    <ul><li>First column = what you <b>change</b>.</li><li>Units go in the <b>heading</b>, not in the boxes.</li></ul>
+    <h3>Describing a trend (pattern)</h3>
+    <p>Use this sentence:</p><div class="key"><b>"As the ___ increases, the ___ increases / decreases."</b></div>
+    <div class="grid">
+      <div class="eq">${chart({type:'line',xs:[],ys:[],xMax:4,xStep:1,yMax:4,yStep:1,fit:x=>x,w:160,h:130})}<b>Goes up</b>Positive</div>
+      <div class="eq">${chart({type:'line',xs:[],ys:[],xMax:4,xStep:1,yMax:4,yStep:1,fit:x=>4-x,w:160,h:130})}<b>Goes down</b>Negative</div>
+      <div class="eq">${chart({type:'line',xs:[],ys:[],xMax:4,xStep:1,yMax:4,yStep:1,fit:x=>3.8*(1-Math.exp(-x*1.2)),w:160,h:130})}<b>Goes up, then levels off</b></div>
+      <div class="eq">${chart({type:'line',xs:[0.5,1,1.5,2,2.5,3,3.5],ys:[2,3.5,1,3,0.7,2.5,1.5],xMax:4,xStep:1,yMax:4,yStep:1,w:160,h:130})}<b>No pattern</b></div>
+    </div>
+    <div class="tip">⭐ <b>Extra marks:</b> use numbers from the graph. E.g. "The temperature fell from 80 °C to 34 °C in 10 minutes."</div>
+    <h3>Anomalous results</h3><p>A result that <b>does not fit the pattern</b>. <b>Circle it</b>. Leave it out of the line of best fit and the mean.</p>
+    ${chart({type:'line',xs:[0,1,2,3,4,5],ys:[0,2,9,6,8,10],xMax:5,xStep:1,yMax:12,yStep:2,xL:'Force (N)',yL:'Stretch (cm)',fit:x=>2*x,ring:2})}
+    <h3>Working out the mean (average)</h3><p><b>Add</b> the results up. <b>Divide</b> by how many there are.<br>Example: 12 + 14 + 13 = 39. 39 ÷ 3 = <b>13</b>.</p>`;
+  }
+  show(`<h2>${SCIENCE_TOPICS[k].ico} ${SCIENCE_TOPICS[k].name}</h2><div class="card">${h}</div>
+  <button class="btn primary" onclick="practise('${k}')">Practise this ✏️</button>
+  <button class="btn ghost" onclick="learnMenu()">← Back to topics</button>`);
+}
+
+/* ============ FLASHCARDS ============ */
+let FL={list:[],i:0,flip:false};
+function flashStart(){
+  FL = { list: shuffle(currentExam === 'welsh-months' ? WELSH_MONTHS : EQUIP), i:0, flip:false };
+  flashShow();
+}
+function flashShow(){
+  SPEAK=[];
+  const e=FL.list[FL.i];
+  if (currentExam === 'welsh-months') {
+    show(`<h2>🃏 Welsh Months Flashcards</h2><p class="small">Card ${FL.i+1} of ${FL.list.length}. Think of the Welsh spelling, then tap the card.</p>
+    <div class="card flash" onclick="FL.flip=!FL.flip;flashShow()">
+      <div style="font-size:1.1rem;color:var(--soft)">English</div>
+      <div style="font-size:2.1rem;font-weight:bold;margin:8px 0">${e.en}</div>
+      ${FL.flip ? `<hr style="width:60%;border:1px solid var(--line);margin:14px 0"><div style="font-size:1.1rem;color:var(--soft)">Welsh (Cymraeg)</div><div style="font-size:2.3rem;font-weight:bold;color:var(--blue);margin-top:4px">${e.cy}</div>` : `<p class="small" style="margin-top:20px">Tap to reveal Welsh</p>`}
+    </div>
+    ${FL.flip?speakBtn(e.cy):''}
+    <div class="row" style="margin-top:12px">
+      <button class="btn" style="width:48%" onclick="FL.i=(FL.i-1+FL.list.length)%FL.list.length;FL.flip=false;flashShow()">← Back</button>
+      <button class="btn primary" style="width:48%" onclick="FL.i=(FL.i+1)%FL.list.length;FL.flip=false;flashShow()">Next →</button>
+    </div>
+    <button class="btn ghost" onclick="examHome()">← Back to Exam</button>`);
+    return;
+  }
+
+  show(`<h2>🃏 Flashcards</h2><p class="small">Card ${FL.i+1} of ${FL.list.length}. Say the name out loud, then tap the card.</p>
+  <div class="card flash" onclick="FL.flip=!FL.flip;flashShow()">
+    ${DRAW[e.k]()}
+    ${FL.flip?`<h2 style="margin-top:8px">${e.name}</h2><p>${e.use}</p>${e.meas!=='Nothing'?`<p><b>Measures:</b> ${e.meas}<br><b>Unit:</b> ${e.unit}</p>`:''}`:`<p style="margin-top:10px"><b>What is this?</b><br><span class="small">Tap to flip</span></p>`}
+  </div>
+  ${FL.flip?speakBtn(e.name+'. '+e.use):''}
+  <div class="row" style="margin-top:12px">
+    <button class="btn" style="width:48%" onclick="FL.i=(FL.i-1+FL.list.length)%FL.list.length;FL.flip=false;flashShow()">← Back</button>
+    <button class="btn primary" style="width:48%" onclick="FL.i=(FL.i+1)%FL.list.length;FL.flip=false;flashShow()">Next →</button>
+  </div>
+  <button class="btn ghost" onclick="examHome()">← Back to Exam</button>`);
+}
+
+/* ============ PRACTICE & MOCK TEST ============ */
+let QZ=null;
+function practiceMenu(){
+  SPEAK=[];
+  show(`<h2>✏️ Practise a topic</h2><p>10 questions. You'll see the right answer and why after each one.</p>
+  <div class="menu">${Object.entries(SCIENCE_TOPICS).map(([k,t])=>`<button class="btn" onclick="practise('${k}')"><span class="ico">${t.ico}</span><span><b>${t.name}</b></span></button>`).join('')}
+  <button class="btn" onclick="practise('mix')"><span class="ico">🎲</span><span><b>Mixed – all topics</b></span></button></div>
+  <button class="btn ghost" onclick="examHome()">← Back</button>`);
+}
+function practise(k){
+  let qs;
+  if (k === 'mix') qs = shuffle(Object.keys(SCIENCE_TOPICS).flatMap(t=>makeQs(t,3))).slice(0,12);
+  else if (k === 'months' || k === 'months-mc') qs = makeQs(k, 12);
+  else qs = makeQs(k, 10);
+  QZ={mode:'practice',topic:k,qs,i:0,score:0,answers:[],done:false};
+  renderQ();
+}
+function startTest(){
+  let qs=[];
+  if (currentExam === 'welsh-months') {
+    qs = makeQs('months', 12);
+  } else {
+    const per={equip:5,units:5,choose:4,bar:3,line:4,trends:4};
+    for(const t in per) qs=qs.concat(makeQs(t,per[t]));
+    qs = shuffle(qs);
+  }
+  QZ={mode:'test',qs,i:0,score:0,answers:[],done:false};
+  show(`<h2>📝 Mock test</h2><div class="card"><p>There are <b>${qs.length} questions</b>.</p><ul><li>Read each question <b>twice</b>.</li><li>You won't see the answers until the end – just like a real test.</li><li>Take your time. You've got this! 💪</li></ul></div>
+  <button class="btn primary" onclick="renderQ()">Start the test</button><button class="btn ghost" onclick="examHome()">← Back</button>`);
+}
+
+function renderQ() {
+  SPEAK = [];
+  const q = QZ.qs[QZ.i]; 
+  QZ.sel = null; 
+  QZ.done = false;
+  const pct = Math.round(QZ.i / QZ.qs.length * 100);
+  const tInfo = ALL_TOPICS[q.topic] || { ico: '❓', name: 'Question' };
+  let body = '';
+  
+  if (q.type === 'mc') {
+    body = q.opts.map((o, i) => `<button class="btn opt" id="o${i}" onclick="choose(${i})">${String.fromCharCode(65 + i)}. ${esc(o)}</button>`).join('');
+  } else if (q.type === 'num') {
+    body = `<div class="row" style="justify-content:flex-start"><input class="num" id="numIn" inputmode="decimal" autocomplete="off" placeholder="?" onkeydown="if(event.key==='Enter')submitNum()"><span class="unit">${q.unit}</span></div><div style="height:10px"></div><button class="btn primary" id="numBtn" onclick="submitNum()">${QZ.mode === 'test' ? 'Next →' : 'Check answer'}</button>`;
+  } else if (q.type === 'text') {
+    body = `<input class="txt" id="txtIn" autocomplete="off" autocapitalize="words" spellcheck="false" placeholder="Type Welsh month..." onkeydown="if(event.key==='Enter')submitText()"><div style="height:10px"></div><button class="btn primary" id="txtBtn" onclick="submitText()">${QZ.mode === 'test' ? 'Next →' : 'Check spelling'}</button>`;
+  }
+  
+  const readText = q.q + (q.type === 'mc' ? ' ' + q.opts.map((o, i) => String.fromCharCode(65 + i) + '. ' + o).join('. ') : '');
+  
+  show(`<div class="row"><span class="tag">${tInfo.ico} ${tInfo.name}</span><span class="small">Q ${QZ.i + 1} of ${QZ.qs.length}</span></div>
+  <div class="progress"><i style="width:${pct}%"></i></div>
+  <div class="card"><div class="row"><span></span>${speakBtn(readText)}</div>
+  <p class="qtext">${esc(q.q)}</p>${q.img ? `<div class="qimg">${q.img}</div>` : ''}${body}<div id="fb"></div></div>
+  <button class="btn ghost" onclick="if(confirm('Stop and return to exam page?'))examHome()">Stop</button>`);
+  
+  if (q.type === 'text') setTimeout(() => document.getElementById('txtIn')?.focus(), 80);
+}
+
+function choose(i) {
+  if (QZ.done) return;
+  const q = QZ.qs[QZ.i];
+  if (QZ.mode === 'test') {
+    QZ.answers.push({ q, given: q.opts[i], ok: i === q.correct }); 
+    if (i === q.correct) QZ.score++;
+    document.getElementById('o' + i).classList.add('sel'); 
+    QZ.done = true;
+    setTimeout(nextQ, 350); 
+    return;
+  }
+  QZ.done = true; 
+  const ok = i === q.correct; 
+  if (ok) QZ.score++;
+  QZ.answers.push({ q, given: q.opts[i], ok });
+  document.getElementById('o' + q.correct).classList.add('right');
+  if (!ok) document.getElementById('o' + i).classList.add('wrong');
+  feedback(ok, q, q.opts[q.correct]);
+}
+
+function submitNum() {
+  if (QZ.done) return;
+  const q = QZ.qs[QZ.i]; 
+  const raw = document.getElementById('numIn').value.trim();
+  if (raw === '') { document.getElementById('numIn').focus(); return; }
+  const v = parseFloat(raw.replace(',', '.')); 
+  const ok = !isNaN(v) && Math.abs(v - q.ans) <= q.tol + 1e-9;
+  QZ.done = true; 
+  if (ok) QZ.score++; 
+  QZ.answers.push({ q, given: raw + ' ' + q.unit, ok });
+  if (QZ.mode === 'test') { nextQ(); return; }
+  document.getElementById('numBtn').style.display = 'none';
+  feedback(ok, q, q.ans + ' ' + q.unit);
+}
+
+function submitText() {
+  if (QZ.done) return;
+  const q = QZ.qs[QZ.i]; 
+  const raw = document.getElementById('txtIn').value.trim();
+  if (raw === '') { document.getElementById('txtIn').focus(); return; }
+  const ok = raw.toLowerCase() === q.ans.toLowerCase();
+  QZ.done = true; 
+  if (ok) QZ.score++; 
+  QZ.answers.push({ q, given: raw, ok });
+  if (QZ.mode === 'test') { nextQ(); return; }
+  document.getElementById('txtBtn').style.display = 'none';
+  feedback(ok, q, q.ans);
+}
+
+const PRAISE = ['Brilliant! 🎉', 'Spot on! ✅', 'Great work! 🌟', 'Nailed it! 💪', 'Correct! 👏'];
+
+function feedback(ok, q, rightText) {
+  const fb = document.getElementById('fb');
+  fb.innerHTML = `<div class="fb ${ok ? 'good' : 'bad'}"><b>${ok ? pick(PRAISE) : 'Not quite – the answer is: ' + esc(rightText)}</b><br>${esc(q.why)}</div>
+  ${speakBtn((ok ? 'Correct. ' : 'The answer is ' + rightText + '. ') + q.why)}<div style="height:10px"></div>
+  <button class="btn primary" onclick="nextQ()">${QZ.i + 1 < QZ.qs.length ? 'Next question →' : 'See my score'}</button>`;
+  fb.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function nextQ() {
+  QZ.i++;
+  if (QZ.i < QZ.qs.length) renderQ();
+  else results();
+}
+
+function getAnsStr(q) {
+  if (q.type === 'mc') return q.opts[q.correct];
+  if (q.type === 'num') return q.ans + ' ' + q.unit;
+  if (q.type === 'text') return q.ans;
+  return '';
+}
+
+function results() {
+  SPEAK = [];
+  const n = QZ.qs.length;
+  const pct = Math.round(QZ.score / n * 100);
+  let msg = pct >= 90 ? 'Amazing! You are ready! 🏆' : pct >= 70 ? 'Really good! Fix the few you missed. ⭐' : pct >= 50 ? 'Good start. Go back over the topics below. 👍' : 'Keep going! Read the Learn pages, then try again. 💪';
+
+  if (QZ.mode === 'test' && currentExam) {
+    const k = 'bestTest_' + currentExam;
+    const b = store(k);
+    if (b == null || pct > b) store(k, pct);
+  }
+
+  const byT = {};
+  QZ.answers.forEach(a => {
+    const t = a.q.topic;
+    byT[t] = byT[t] || { r: 0, n: 0 };
+    byT[t].n++;
+    if (a.ok) byT[t].r++;
+  });
+  const wrong = QZ.answers.filter(a => !a.ok);
+  const weak = Object.entries(byT).filter(([t, v]) => v.r / v.n < 0.75).map(([t]) => t);
+
+  // Safely build the HTML strings without deep inline template literals
+  let topicsHtml = Object.entries(byT).map(([t, v]) => {
+    const p = Math.round(v.r / v.n * 100);
+    const ti = ALL_TOPICS[t] || { ico: '📌', name: t };
+    const bg = p >= 75 ? '#16a34a' : (p >= 50 ? '#f59e0b' : '#dc2626');
+    return `<p style="margin:.5em 0 .2em">${ti.ico} ${ti.name}: <b>${v.r}/${v.n}</b></p><div class="bar"><i style="width:${p}%;background:${bg}"></i></div>`;
+  }).join('');
+
+  let weakHtml = '';
+  if (weak.length && currentExam === 'sci-apparatus') {
+    const buttons = weak.map(t => `<button class="pill" onclick="learn('${t}')">${ALL_TOPICS[t].name}</button>`).join(' ');
+    weakHtml = `<div class="tip">📌 Work on: ${buttons}</div>`;
+  }
+
+  let mistakesHtml = '';
+  if (wrong.length) {
+    const wlist = wrong.map(a => {
+      const qImg = a.q.img ? `<div class="qimg">${a.q.img}</div>` : '';
+      return `<div style="border-top:1px solid var(--line);padding-top:8px;margin-top:8px">
+        <p><b>${esc(a.q.q)}</b></p>${qImg}
+        <p>❌ You said: ${esc(a.given)}<br>✅ Answer: <b>${esc(getAnsStr(a.q))}</b></p>
+        <p class="small">${esc(a.q.why)}</p>
+      </div>`;
+    }).join('');
+    mistakesHtml = `<div class="card"><h3 style="margin-top:0">Check your mistakes</h3>${wlist}</div>
+    <button class="btn primary" onclick="redoMistakes()">Try my mistakes again 🔁</button>`;
+  }
+
+  const retryAction = QZ.mode === 'test' ? 'startTest()' : `practise('${QZ.topic}')`;
+  const retryLabel = QZ.mode === 'test' ? 'Take another mock test' : 'Practise again (new questions)';
+
+  show(`<h2>${QZ.mode === 'test' ? '📝 Test results' : '✏️ Practice done'}</h2>
+  <div class="card"><div class="big-score">${QZ.score} / ${n}</div><p style="text-align:center"><b>${pct}%</b> – ${msg}</p></div>
+  <div class="card"><h3 style="margin-top:0">Score by topic</h3>${topicsHtml}${weakHtml}</div>
+  ${mistakesHtml}
+  <button class="btn" onclick="${retryAction}">${retryLabel}</button>
+  <button class="btn ghost" onclick="examHome()">← Back to Exam</button>`);
+  
+  QZ.wrong = wrong.map(a => a.q);
+}
+
+function redoMistakes() { 
+  const qs = shuffle(QZ.wrong); 
+  QZ = { mode: 'practice', topic: QZ.topic || 'mix', qs, i: 0, score: 0, answers: [] }; 
+  renderQ(); 
+}
+
+/* ============ GRAPH LAB (RESTORED) ============ */
+const LAB=[
+ {kind:'bar',title:'Eye colour in our class',labels:['Brown','Blue','Green','Grey'],ys:[12,8,4,2],yMax:14,yStep:2,snap:1,xL:'Eye colour',yL:'Number of people',
+  pre:MCq('Should this be a bar chart or a line graph?','Bar chart – eye colour is a word',['Line graph – both are numbers']),
+  post:MCq('Which eye colour is the most common?','Brown',['Blue','Green','Grey'])},
+ {kind:'bar',title:'Toy car on different surfaces',labels:['Carpet','Wood','Tiles','Grass'],ys:[40,120,95,25],yMax:140,yStep:20,snap:5,xL:'Surface',yL:'Distance rolled (cm)',
+  pre:MCq('Why should these results go in a BAR CHART?','Because the surfaces are words, not numbers',['Because both things are numbers','Because bar charts are always best','Because there are 4 results']),
+  post:MCq('Which surface let the car roll the furthest?','Wood',['Carpet','Tiles','Grass'])},
+ {kind:'line',title:'Cup of tea cooling down',xs:[0,2,4,6,8,10],ys:[80,60,50,40,35,35],xMax:10,xStep:1,yMax:90,yStep:10,snap:5,xL:'Time (min)',yL:'Temperature (°C)',fit:x=>34+46*Math.exp(-x/3.2),
+  pre:MCq('Which goes on the x-axis (along the bottom)?','Time (min) – the thing we change',['Temperature (°C) – the thing we measure']),
+  post:MCq('What is the trend?','As time increases, the temperature decreases, then levels off',['As time increases, the temperature increases','There is no pattern','The temperature stays the same'])},
+ {kind:'bar',title:'Pulse rate after exercise',labels:['Sitting','Walking','Jogging','Running'],ys:[70,90,130,160],yMax:180,yStep:20,snap:5,xL:'Activity',yL:'Pulse (beats per min)',
+  pre:MCq('What goes on the y-axis (up the side)?','Pulse – the thing we measure',['Activity – the thing we change']),
+  post:MCq('What is the pulse after jogging?','130 beats per minute',['90 beats per minute','160 beats per minute','70 beats per minute'])},
+ {kind:'line',title:'Stretching a spring',xs:[0,1,2,3,4,5],ys:[0,2,4,6,8,10],xMax:5,xStep:1,yMax:12,yStep:2,snap:1,xL:'Force (N)',yL:'Stretch (cm)',fit:x=>2*x,
+  pre:MCq('What type of graph should you draw?','A line graph – both are numbers',['A bar chart – because they are groups']),
+  post:MCq('What is the trend?','As the force increases, the stretch increases',['As the force increases, the stretch decreases','There is no pattern','It goes up then levels off'])},
+];
+function MCq(q,right,wrongs){ return {q,right,opts:shuffle([right,...wrongs])}; }
+let LB=null;
+function labMenu(){
+  SPEAK=[];
+  show(`<h2>📈 Graph Lab</h2><p>Draw the graph yourself by <b>tapping</b> on the grid.</p>
+  <div class="menu">${LAB.map((t,i)=>`<button class="btn" onclick="labStart(${i})"><span class="ico">${t.kind==='bar'?'📊':'📈'}</span><span><b>${t.title}</b><small>${t.kind==='bar'?'Bar chart':'Line graph'}</small></span></button>`).join('')}</div>
+  <button class="btn ghost" onclick="examHome()">← Back</button>`);
+}
+function labStart(i){ LB={i,t:LAB[i],step:0,marks:{}}; labRender(); }
+function labTable(t){
+  const xs=t.kind==='bar'?t.labels:t.xs;
+  return `<table><tr><th>${esc(t.xL)}</th>${xs.map(x=>`<td>${x}</td>`).join('')}</tr><tr><th>${esc(t.yL)}</th>${t.ys.map(y=>`<td>${y}</td>`).join('')}</tr></table>`;
+}
+function labRender(){
+  SPEAK=[];
+  const t=LB.t;
+  let h=`<h2>${t.kind==='bar'?'📊':'📈'} ${t.title}</h2><div class="card"><p><b>Results:</b></p>${labTable(t)}</div>`;
+  if(LB.step===0){
+    h+=`<div class="card"><p class="qtext">${esc(t.pre.q)}</p>${t.pre.opts.map((o,i)=>`<button class="btn opt" id="lp${i}" onclick="labPre(${i})">${esc(o)}</button>`).join('')}<div id="fb"></div></div>`;
+  } else if(LB.step===1){
+    const o=labChartOpts();
+    h+=`<div class="card"><p><b>Your turn!</b> ${t.kind==='bar'?'Tap above each group to set the height of its bar.':'Tap the grid to put a cross (×) for each result. Tap again in the same column to move it.'}</p>
+    ${chart(o)}<div id="fb"></div>
+    <div class="row" style="margin-top:10px"><button class="btn" style="width:48%" onclick="LB.marks={};labDraw()">Clear</button><button class="btn primary" style="width:48%" onclick="labCheck()">Check ✔</button></div></div>`;
+  } else {
+    const o=labChartOpts(true);
+    h+=`<div class="card">${chart(o)}<p class="qtext">${esc(t.post.q)}</p>${t.post.opts.map((x,i)=>`<button class="btn opt" id="lq${i}" onclick="labPost(${i})">${esc(x)}</button>`).join('')}<div id="fb"></div></div>`;
+  }
+  h+=`<button class="btn ghost" onclick="labMenu()">← Graph Lab</button>`;
+  show(h);
+  if(LB.step===1){ labBind(); labDraw(); }
+}
+function labChartOpts(final){
+  const t=LB.t;
+  const o={id:'lab',type:t.kind,yMax:t.yMax,yStep:t.yStep,yMinor:t.snap<t.yStep?t.snap:null,xL:t.xL,yL:t.yL,title:t.title,h:300};
+  if(t.kind==='bar'){ o.labels=t.labels; o.ys=final?t.ys:[]; }
+  else { o.xMax=t.xMax; o.xStep=t.xStep; if(final){o.xs=t.xs;o.ys=t.ys;o.fit=t.fit;} }
+  LB.o=o; return o;
+}
+function labPre(i){
+  const t=LB.t, ok=t.pre.opts[i]===t.pre.right;
+  document.getElementById('lp'+i).classList.add(ok?'right':'wrong');
+  document.getElementById('fb').innerHTML= ok?`<div class="fb good"><b>${pick(PRAISE)}</b></div><button class="btn primary" onclick="LB.step=1;labRender()">Now draw it →</button>`:`<div class="fb bad">Not quite. Remember: x-axis = what you <b>change</b>. Bar chart = <b>words</b>. Line graph = <b>numbers</b>. Try again.</div>`;
+}
+function labPost(i){
+  const t=LB.t, ok=t.post.opts[i]===t.post.right;
+  document.getElementById('lq'+i).classList.add(ok?'right':'wrong');
+  document.getElementById('fb').innerHTML= ok?`<div class="fb good"><b>${pick(PRAISE)} Graph complete!</b></div><button class="btn primary" onclick="labStart(${(LB.i+1)%LAB.length})">Next graph →</button>`:`<div class="fb bad">Not quite. Look at the graph again and try another answer.</div>`;
+}
+function labBind(){
+  const svg=document.getElementById('lab');
+  svg.addEventListener('pointerdown',e=>{
+    const pt=svg.createSVGPoint(); pt.x=e.clientX; pt.y=e.clientY;
+    const p=pt.matrixTransform(svg.getScreenCTM().inverse());
+    const g=LB.o._geo, t=LB.t;
+    if(p.x<g.L-4||p.x>g.L+g.pw+4||p.y<g.T-8||p.y>g.T+g.ph+8) return;
+    let yv=(g.T+g.ph-p.y)/g.ph*(g.yMax-g.yMin)+g.yMin; yv=Math.max(0,Math.min(g.yMax,Math.round(yv/t.snap)*t.snap));
+    if(t.kind==='bar'){ const idx=Math.floor((p.x-g.L)/g.band); if(idx<0||idx>=t.labels.length) return; LB.marks[idx]=yv; }
+    else { let xv=(p.x-g.L)/g.pw*(g.xMax-g.xMin)+g.xMin; xv=Math.round(xv/t.xStep)*t.xStep; if(xv<g.xMin||xv>g.xMax) return; if(LB.marks[xv]===yv) delete LB.marks[xv]; else LB.marks[xv]=yv; }
+    labDraw();
+  });
+}
+function labDraw(){
+  const g=LB.o._geo, t=LB.t, m=document.getElementById('lab-marks'); let s='';
+  if(t.kind==='bar'){ const bw=g.band*0.6; for(const k in LB.marks){ const cx=g.L+g.band*k+g.band/2, y=LB.marks[k]; if(y>0) s+=`<rect x="${cx-bw/2}" y="${g.Y(y)}" width="${bw}" height="${g.Y(0)-g.Y(y)}" fill="#5b8def" stroke="#1d3557" stroke-width="1.2"/>`; s+=`<text x="${cx}" y="${g.Y(y)-5}" text-anchor="middle" font-size="10" fill="#1d4ed8">${y}</text>`; } }
+  else { for(const k in LB.marks){ const px=g.X(+k), py=g.Y(LB.marks[k]); s+=`<path d="M${px-6} ${py-6}L${px+6} ${py+6}M${px+6} ${py-6}L${px-6} ${py+6}" stroke="#1d4ed8" stroke-width="2.6"/>`; } }
+  m.innerHTML=s;
+}
+function labCheck(){
+  const t=LB.t; let wrong=[], missing=[], extra=[];
+  if(t.kind==='bar'){ t.labels.forEach((l,i)=>{ if(LB.marks[i]==null) missing.push(l); else if(LB.marks[i]!==t.ys[i]) wrong.push(`${l} (you drew ${LB.marks[i]}, it should be ${t.ys[i]})`); }); }
+  else { t.xs.forEach((x,i)=>{ if(LB.marks[x]==null) missing.push(x); else if(LB.marks[x]!==t.ys[i]) wrong.push(`at ${x} (you put ${LB.marks[x]}, it should be ${t.ys[i]})`); });
+         for(const k in LB.marks){ if(!t.xs.includes(+k)) extra.push(k); } }
+  const fb=document.getElementById('fb');
+  if(!wrong.length&&!missing.length&&!extra.length){
+    fb.innerHTML=`<div class="fb good"><b>${pick(PRAISE)} Every ${t.kind==='bar'?'bar':'cross'} is correct!</b>${t.kind==='line'?'<br>Next, we add a line of best fit.':''}</div><button class="btn primary" onclick="LB.step=2;labRender()">Continue →</button>`;
+  } else {
+    let s='<div class="fb bad"><b>Nearly! Check these:</b><ul>';
+    if(missing.length) s+=`<li>Missing: ${missing.join(', ')}</li>`;
+    wrong.forEach(w=>s+=`<li>${w}</li>`);
+    if(extra.length) s+=`<li>Extra cross at ${extra.join(', ')} – there is no result there. Tap it to remove it.</li>`;
+    s+='</ul>Tip: count the small squares carefully. Each small line is worth <b>'+t.snap+'</b>.</div>';
+    fb.innerHTML=s;
+  }
+}
+
+/* ============ TIPS & VIDEOS ============ */
+function tips(){
+  SPEAK=[];
+  const txt=`<ol>
+  <li><b>Read the question twice.</b> Underline the key word (name, use, unit, trend).</li>
+  <li><b>Always write the unit.</b> 25 is wrong. <b>25 cm³</b> is right.</li>
+  <li><b>Graphs: pencil and ruler.</b> Title, both axes labelled with units, equal steps.</li>
+  <li><b>Bar chart = words. Line graph = numbers.</b></li>
+  <li><b>DRY MIX:</b> what you measure goes up the side (Y). What you change goes along the bottom (X).</li>
+  <li><b>Trends:</b> "As ___ increases, ___ increases / decreases." Then quote numbers from the graph.</li>
+  <li><b>Reading scales:</b> work out what one small line is worth first.</li>
+  <li><b>Choosing equipment:</b> what am I measuring? Then, what keeps me safe?</li>
+  <li><b>Never leave a gap.</b> A sensible guess can still get a mark.</li>
+  <li><b>Check at the end.</b> Did you answer every part?</li></ol>`;
+  show(`<h2>🏆 Top marks tips</h2><div class="card">${speakBtn(txt)}${txt}</div>
+  <div class="card"><h3 style="margin-top:0">Revision plan</h3><ul><li><b>Today:</b> Learn + Flashcards (15 min)</li><li><b>Next day:</b> Practise each topic (20 min)</li><li><b>Next day:</b> Graph Lab – all 4 graphs (15 min)</li><li><b>Day before the test:</b> Mock test, then fix mistakes</li></ul></div>
+  <button class="btn ghost" onclick="examHome()">← Back</button>`);
+}
+function videos(){
+  SPEAK=[];
+  const V=[
+    ['Choosing equipment','https://www.thenational.academy/teachers/programmes/science-secondary-ks3/units/solutions/lessons/mixtures-choosing-equipment','Oak National Academy – picking the right apparatus.'],
+    ['Equipment diagrams','https://www.thenational.academy/teachers/programmes/science-secondary-ks3/units/solutions/lessons/mixtures-equipment-diagrams','Oak – drawing and naming lab equipment.'],
+    ['Measuring temperature','https://www.thenational.academy/teachers/programmes/science-secondary-ks3/units/heating-and-cooling/lessons/measuring-temperature','Oak – using a thermometer and reading the scale.'],
+    ['Hooke\'s law (spring + line graph)','https://www.thenational.academy/teachers/programmes/science-secondary-ks3/units/hidden-forces/lessons/hookes-law','Oak – newton meters, plotting a line graph and spotting a trend.'],
+    ['Data handling and graphs','https://www.thenational.academy/teachers/programmes/science-secondary-ks3/units/variation-differences-within-species/lessons/continuous-variation-data-handling-and-analysis','Oak – drawing graphs and describing patterns.'],
+    ['Graphs and charts – notes','https://senecalearning.com/en-GB/revision-notes/ks3/science/national-curriculum/4-1-13-graphs-and-charts','Seneca – short notes on bar charts vs line graphs.'],
+  ];
+  show(`<h2>🎬 Videos</h2><p>Free lessons. Each Oak page has a short video. You need internet for these.</p>
+  ${V.map(v=>`<a class="btn" href="${v[1]}" target="_blank" rel="noopener"><b>▶ ${v[0]}</b><small>${v[2]}</small></a>`).join('')}
+  <button class="btn ghost" onclick="examHome()">← Back</button>`);
+}
+
+/* Always boot to the Subject Choosing Homepage on load */
+goLanding();
+</script>
+</body>
+</html>
